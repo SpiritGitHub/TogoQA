@@ -1,0 +1,3882 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "togoqa.education.indicators",
+  "title": "Référentiel canonique des indicateurs éducatifs de TogoQA",
+  "country": "Togo",
+  "country_code": "TG",
+  "domain": "education",
+  "language": "fr",
+  "description": "Référentiel de normalisation sémantique pour mapper les questions utilisateurs, colonnes de jeux de données, tableaux PDF/Excel et formulations institutionnelles vers des indicateurs éducatifs canoniques.",
+  "design_principles": [
+    "Les codes sont stables, en snake_case et indépendants des libellés présents dans une source particulière.",
+    "Les aliases servent au matching lexical/sémantique en français et en anglais.",
+    "La période, le niveau d'enseignement, le sexe, la zone géographique et le statut de l'établissement sont traités comme dimensions lorsque possible.",
+    "Une définition locale fournie par une source officielle prime sur une définition générique lorsqu'une différence méthodologique existe ; TogoQA doit alors conserver la définition de la source dans les métadonnées de l'observation.",
+    "Les indicateurs dérivés ne doivent être calculés que si les numérateurs, dénominateurs, périodes et périmètres sont compatibles.",
+    "Les méta-indicateurs TogoQA de qualité/confiance sont explicitement séparés des indicateurs éducatifs officiels."
+  ],
+  "canonical_dimensions": {
+    "time": [
+      "year",
+      "school_year",
+      "reference_date",
+      "publication_date"
+    ],
+    "education": [
+      "education_level",
+      "cycle",
+      "grade",
+      "exam",
+      "session",
+      "subject",
+      "field_of_study"
+    ],
+    "demographic": [
+      "sex",
+      "age_group",
+      "disability_status"
+    ],
+    "geographic": [
+      "country",
+      "region",
+      "prefecture",
+      "commune",
+      "urban_rural"
+    ],
+    "institution": [
+      "institution_status",
+      "institution_type",
+      "institution_name",
+      "ownership"
+    ],
+    "data_provenance": [
+      "source_id",
+      "dataset_id",
+      "source_authority_level",
+      "data_status",
+      "methodology_version"
+    ]
+  },
+  "normalization": {
+    "case_insensitive": true,
+    "accent_insensitive": true,
+    "punctuation_insensitive": true,
+    "recommended_match_order": [
+      "exact_code",
+      "exact_alias",
+      "normalized_alias",
+      "embedding_similarity",
+      "LLM_disambiguation"
+    ],
+    "disambiguation_rule": "Si plusieurs indicateurs ont des aliases proches, utiliser le contexte (niveau, sexe, examen, unité, période, formule et source) avant de sélectionner le code canonique."
+  },
+  "source_catalog": [
+    {
+      "id": "OPEN_DATA_TG",
+      "name": "Portail Open Data Togo",
+      "authority_level": "A",
+      "url": "https://opendata.gouv.tg/",
+      "scope": "Jeux de données officiels publiés par les administrations togolaises."
+    },
+    {
+      "id": "DDPEES_TG",
+      "name": "Données Ouvertes sur les Dépenses Publiques par Étudiant dans l’Enseignement Supérieur au Togo (DDPEES-TG)",
+      "authority_level": "A",
+      "url": "https://opendata.gouv.tg/fr/datasets/donnees-ouvertes-sur-les-depenses-publiques-par-etudiant-dans-lenseignement-superieur-au-togo/",
+      "scope": "Dépenses publiques par étudiant dans l’enseignement supérieur."
+    },
+    {
+      "id": "DEFT_TG",
+      "name": "Données Ouvertes sur les Établissements de Formations Techniques au Togo (DEFT-TG)",
+      "authority_level": "A",
+      "url": "https://opendata.gouv.tg/fr/datasets/donnees-ouvertes-sur-les-etablissements-de-formations-techniques-au-togo/",
+      "scope": "Établissements de formation technique et professionnelle."
+    },
+    {
+      "id": "DICES_TG",
+      "name": "Données Ouvertes sur les Indicateurs Clés de l’Enseignement Supérieur au Togo (DICES-TG)",
+      "authority_level": "A",
+      "url": "https://opendata.gouv.tg/fr/datasets/donnees-ouvertes-sur-les-indicateurs-cles-de-lenseignement-superieur-au-togo/",
+      "scope": "Indicateurs clés de l’enseignement supérieur."
+    },
+    {
+      "id": "DREESTSL_TG",
+      "name": "Donnée Ouverte sur la Répartition des Établissements d’Enseignement Supérieur ayant fonctionné par Type, Statut et Localisation géographique au Togo (DREESTSL-TG)",
+      "authority_level": "A",
+      "url": "https://opendata.gouv.tg/fr/datasets/donnee-ouverte-sur-la-repartition-des-etablissements-denseignement-superieur-ayant-fonctionne-par-type-statut-et-localisation-geographique-au-togo/",
+      "scope": "Répartition des établissements supérieurs par type, statut et localisation."
+    },
+    {
+      "id": "DISES_TG",
+      "name": "Données Ouvertes Sur Les Inscriptions Scolaires, Enseignement Supérieur (% Brut) Au Togo (DISES-TG)",
+      "authority_level": "A",
+      "url": "https://opendata.gouv.tg/fr/datasets/donnees-ouvertes-sur-les-inscriptions-scolaires-enseignement-superieur-brut-au-togo/",
+      "scope": "Taux brut d’inscription/scolarisation dans l’enseignement supérieur."
+    },
+    {
+      "id": "DCDES_TG",
+      "name": "Données Ouvertes sur le Chômage des Diplômés de l’Enseignement Supérieur au Togo (DCDES-TG)",
+      "authority_level": "A",
+      "url": "https://opendata.gouv.tg/fr/datasets/donnees-ouvertes-sur-le-chomage-des-diplomes-de-lenseignement-superieur-au-togo-de-la-population-active-totale-diplomee-de-lenseignement-superieur/",
+      "scope": "Chômage des diplômés du supérieur."
+    },
+    {
+      "id": "DBESBNVE_TG",
+      "name": "Données Ouvertes sur le Budget de l’Enseignement Supérieur et Budget National Votés et Exécutés au Togo (DBESBNVE-TG)",
+      "authority_level": "A",
+      "url": "https://opendata.gouv.tg/fr/datasets/donnees-ouvertes-sur-le-budget-de-lenseignement-superieur-et-budget-national-votes-et-executes-au-togo/",
+      "scope": "Budgets votés et exécutés de l’enseignement supérieur et budget national."
+    },
+    {
+      "id": "MEPS",
+      "name": "Ministère chargé des enseignements primaire et secondaire",
+      "authority_level": "A",
+      "url": "https://education.gouv.tg/",
+      "scope": "Examens, statistiques scolaires, établissements, enseignants, politiques éducatives."
+    },
+    {
+      "id": "MESR",
+      "name": "Ministère de l’Enseignement Supérieur et de la Recherche",
+      "authority_level": "A",
+      "url": "https://ens-superieur.gouv.tg/",
+      "scope": "Enseignement supérieur, universités, étudiants, personnels, politiques et budgets sectoriels."
+    },
+    {
+      "id": "INSEED",
+      "name": "Institut National de la Statistique et des Études Économiques et Démographiques",
+      "authority_level": "A",
+      "url": "https://inseed.tg/",
+      "scope": "Statistiques démographiques, alphabétisation, enquêtes ménages, population d’âge scolaire."
+    },
+    {
+      "id": "UIS",
+      "name": "UNESCO Institute for Statistics",
+      "authority_level": "B+",
+      "url": "https://uis.unesco.org/",
+      "scope": "Définitions internationales et indicateurs comparables d’éducation."
+    },
+    {
+      "id": "PASEC",
+      "name": "PASEC / CONFEMEN",
+      "authority_level": "B+",
+      "url": "https://pasec.confemen.org/",
+      "scope": "Évaluations des acquis scolaires."
+    }
+  ],
+  "definition_references": [
+    {
+      "name": "UNESCO UIS — Gross enrolment ratio",
+      "url": "https://uis.unesco.org/en/glossary-term/gross-enrolment-ratio",
+      "used_for": [
+        "gross_enrollment_rate",
+        "gross_enrollment_rate_girls",
+        "gross_enrollment_rate_boys"
+      ]
+    },
+    {
+      "name": "UNESCO UIS — Total net enrolment rate / glossary",
+      "url": "https://uis.unesco.org/en/glossary-term/total-net-enrolment-rate",
+      "used_for": [
+        "net_enrollment_rate",
+        "adjusted_net_enrollment_rate",
+        "out_of_school_rate"
+      ]
+    },
+    {
+      "name": "UNESCO UIS — Education glossary",
+      "url": "https://databrowser.uis.unesco.org/glossary",
+      "used_for": [
+        "completion_rate",
+        "repetition_rate",
+        "gross_intake_rate",
+        "literacy_rate"
+      ]
+    }
+  ],
+  "indicators": [
+    {
+      "code": "candidates_total",
+      "label": "Candidats inscrits — total",
+      "definition": "Nombre total de candidats officiellement inscrits à un examen ou concours pour une session donnée.",
+      "unit": "personnes",
+      "aliases": [
+        "nombre de candidats",
+        "candidats inscrits",
+        "effectif candidats",
+        "total candidats",
+        "exam candidates",
+        "registered candidates"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "OPEN_DATA_TG"
+      ]
+    },
+    {
+      "code": "candidates_girls",
+      "label": "Candidates inscrites — filles",
+      "definition": "Nombre de candidates de sexe féminin officiellement inscrites à un examen ou concours pour une session donnée.",
+      "unit": "personnes",
+      "aliases": [
+        "candidates filles",
+        "filles candidates",
+        "candidats filles",
+        "female candidates",
+        "girls candidates"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "OPEN_DATA_TG"
+      ]
+    },
+    {
+      "code": "candidates_boys",
+      "label": "Candidats inscrits — garçons",
+      "definition": "Nombre de candidats de sexe masculin officiellement inscrits à un examen ou concours pour une session donnée.",
+      "unit": "personnes",
+      "aliases": [
+        "candidats garçons",
+        "garçons candidats",
+        "male candidates",
+        "boys candidates"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "OPEN_DATA_TG"
+      ]
+    },
+    {
+      "code": "candidates_present",
+      "label": "Candidats présents",
+      "definition": "Nombre de candidats ayant effectivement composé ou participé à l’examen parmi les inscrits.",
+      "unit": "personnes",
+      "aliases": [
+        "présents à l’examen",
+        "candidats ayant composé",
+        "exam attendees",
+        "candidates present"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "candidates_absent",
+      "label": "Candidats absents",
+      "definition": "Nombre de candidats inscrits n’ayant pas effectivement participé à l’examen.",
+      "unit": "personnes",
+      "aliases": [
+        "absents à l’examen",
+        "candidats absents",
+        "exam absentees",
+        "absent candidates"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "formula": "candidates_total - candidates_present",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "admitted_total",
+      "label": "Admis — total",
+      "definition": "Nombre total de candidats déclarés admis à l’issue de l’examen ou du concours.",
+      "unit": "personnes",
+      "aliases": [
+        "nombre d’admis",
+        "admis total",
+        "lauréats",
+        "successful candidates",
+        "passed candidates"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "admitted_girls",
+      "label": "Admises — filles",
+      "definition": "Nombre de candidates de sexe féminin déclarées admises à l’issue de l’examen.",
+      "unit": "personnes",
+      "aliases": [
+        "filles admises",
+        "admises filles",
+        "female successful candidates",
+        "girls passed"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "admitted_boys",
+      "label": "Admis — garçons",
+      "definition": "Nombre de candidats de sexe masculin déclarés admis à l’issue de l’examen.",
+      "unit": "personnes",
+      "aliases": [
+        "garçons admis",
+        "admis garçons",
+        "male successful candidates",
+        "boys passed"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "success_rate",
+      "label": "Taux de réussite — total",
+      "definition": "Part des candidats évalués qui sont déclarés admis à l’examen, selon le dénominateur retenu par la source (présents ou inscrits).",
+      "unit": "%",
+      "aliases": [
+        "taux de réussite",
+        "pourcentage de réussite",
+        "résultat examen",
+        "pass rate",
+        "success rate"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "number",
+      "formula": "100 * admitted_total / candidates_present (ou candidates_total selon la source)",
+      "source_hints": [
+        "MEPS"
+      ],
+      "notes": "Toujours conserver le dénominateur exact utilisé par la source."
+    },
+    {
+      "code": "success_rate_girls",
+      "label": "Taux de réussite — filles",
+      "definition": "Part des candidates évaluées qui sont déclarées admises à l’examen.",
+      "unit": "%",
+      "aliases": [
+        "taux de réussite filles",
+        "réussite des filles",
+        "female pass rate",
+        "girls success rate"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "number",
+      "formula": "100 * admitted_girls / candidates_present_girls",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "success_rate_boys",
+      "label": "Taux de réussite — garçons",
+      "definition": "Part des candidats masculins évalués qui sont déclarés admis à l’examen.",
+      "unit": "%",
+      "aliases": [
+        "taux de réussite garçons",
+        "réussite des garçons",
+        "male pass rate",
+        "boys success rate"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "number",
+      "formula": "100 * admitted_boys / candidates_present_boys",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "failure_rate",
+      "label": "Taux d’échec",
+      "definition": "Part des candidats évalués qui ne sont pas déclarés admis.",
+      "unit": "%",
+      "aliases": [
+        "taux d’échec",
+        "pourcentage d’échec",
+        "fail rate",
+        "failure rate"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "number",
+      "formula": "100 - success_rate",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "exam_centers",
+      "label": "Centres d’examen",
+      "definition": "Nombre de centres officiellement ouverts pour l’organisation d’un examen ou concours au cours d’une session.",
+      "unit": "centres",
+      "aliases": [
+        "centres d’écrit",
+        "centres examen",
+        "exam centers",
+        "testing centers"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "exam_mean_score",
+      "label": "Note moyenne à l’examen",
+      "definition": "Moyenne des notes obtenues par les candidats à un examen ou une évaluation standardisée.",
+      "unit": "points",
+      "aliases": [
+        "moyenne examen",
+        "score moyen",
+        "average exam score",
+        "mean score"
+      ],
+      "category": "examens",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "exam",
+        "session",
+        "subject"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "PASEC"
+      ]
+    },
+    {
+      "code": "enrollment_total",
+      "label": "Effectif scolarisé — total",
+      "definition": "Nombre total d’élèves ou étudiants officiellement inscrits dans un niveau, cycle, établissement ou année scolaire donné.",
+      "unit": "personnes",
+      "aliases": [
+        "effectif scolaire",
+        "effectifs",
+        "inscrits",
+        "élèves inscrits",
+        "students enrolled",
+        "enrolment",
+        "enrollment"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "OPEN_DATA_TG",
+        "DICES_TG"
+      ]
+    },
+    {
+      "code": "enrollment_girls",
+      "label": "Effectif scolarisé — filles",
+      "definition": "Nombre d’élèves ou étudiantes de sexe féminin officiellement inscrites.",
+      "unit": "personnes",
+      "aliases": [
+        "effectif filles",
+        "filles inscrites",
+        "élèves filles",
+        "female enrollment",
+        "girls enrolment"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "OPEN_DATA_TG"
+      ]
+    },
+    {
+      "code": "enrollment_boys",
+      "label": "Effectif scolarisé — garçons",
+      "definition": "Nombre d’élèves ou étudiants de sexe masculin officiellement inscrits.",
+      "unit": "personnes",
+      "aliases": [
+        "effectif garçons",
+        "garçons inscrits",
+        "élèves garçons",
+        "male enrollment",
+        "boys enrolment"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "OPEN_DATA_TG"
+      ]
+    },
+    {
+      "code": "new_entrants_total",
+      "label": "Nouveaux entrants — total",
+      "definition": "Nombre d’apprenants qui entrent pour la première fois dans un niveau, cycle ou grade donné pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "nouveaux inscrits",
+        "nouveaux entrants",
+        "first-time entrants",
+        "new entrants"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR"
+      ]
+    },
+    {
+      "code": "new_entrants_girls",
+      "label": "Nouvelles entrantes — filles",
+      "definition": "Nombre de nouvelles entrantes de sexe féminin dans le niveau, cycle ou grade considéré.",
+      "unit": "personnes",
+      "aliases": [
+        "nouvelles inscrites",
+        "filles nouvelles entrantes",
+        "female new entrants"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR"
+      ]
+    },
+    {
+      "code": "new_entrants_boys",
+      "label": "Nouveaux entrants — garçons",
+      "definition": "Nombre de nouveaux entrants de sexe masculin dans le niveau, cycle ou grade considéré.",
+      "unit": "personnes",
+      "aliases": [
+        "garçons nouveaux entrants",
+        "male new entrants"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR"
+      ]
+    },
+    {
+      "code": "gross_enrollment_rate",
+      "label": "Taux brut de scolarisation",
+      "definition": "Nombre total d’inscrits dans un niveau d’enseignement, quel que soit leur âge, rapporté à la population ayant officiellement l’âge de fréquenter ce niveau.",
+      "unit": "%",
+      "aliases": [
+        "TBS",
+        "taux brut d’inscription",
+        "scolarisation brute",
+        "gross enrolment ratio",
+        "gross enrollment rate",
+        "GER"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * enrollment_total / official_school_age_population",
+      "source_hints": [
+        "MEPS",
+        "INSEED",
+        "UIS",
+        "DISES_TG"
+      ],
+      "notes": "Peut dépasser 100 % du fait des élèves plus jeunes ou plus âgés que l’âge officiel."
+    },
+    {
+      "code": "gross_enrollment_rate_girls",
+      "label": "Taux brut de scolarisation — filles",
+      "definition": "Taux brut de scolarisation calculé pour les filles ou étudiantes.",
+      "unit": "%",
+      "aliases": [
+        "TBS filles",
+        "taux brut filles",
+        "female gross enrolment ratio",
+        "female GER"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * enrollment_girls / official_school_age_population_girls",
+      "source_hints": [
+        "MEPS",
+        "INSEED",
+        "UIS",
+        "DISES_TG"
+      ]
+    },
+    {
+      "code": "gross_enrollment_rate_boys",
+      "label": "Taux brut de scolarisation — garçons",
+      "definition": "Taux brut de scolarisation calculé pour les garçons ou étudiants.",
+      "unit": "%",
+      "aliases": [
+        "TBS garçons",
+        "taux brut garçons",
+        "male gross enrolment ratio",
+        "male GER"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * enrollment_boys / official_school_age_population_boys",
+      "source_hints": [
+        "MEPS",
+        "INSEED",
+        "UIS",
+        "DISES_TG"
+      ]
+    },
+    {
+      "code": "net_enrollment_rate",
+      "label": "Taux net de scolarisation",
+      "definition": "Part de la population ayant l’âge officiel d’un niveau d’enseignement qui est effectivement inscrite dans ce même niveau.",
+      "unit": "%",
+      "aliases": [
+        "TNS",
+        "taux net d’inscription",
+        "net enrolment rate",
+        "net enrollment rate",
+        "NER"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * enrolled_official_age_in_level / official_school_age_population",
+      "source_hints": [
+        "MEPS",
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "net_enrollment_rate_girls",
+      "label": "Taux net de scolarisation — filles",
+      "definition": "Taux net de scolarisation calculé pour les filles de l’âge officiel du niveau considéré.",
+      "unit": "%",
+      "aliases": [
+        "TNS filles",
+        "female net enrolment rate",
+        "female NER"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * girls_official_age_enrolled_in_level / girls_official_school_age_population",
+      "source_hints": [
+        "MEPS",
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "net_enrollment_rate_boys",
+      "label": "Taux net de scolarisation — garçons",
+      "definition": "Taux net de scolarisation calculé pour les garçons de l’âge officiel du niveau considéré.",
+      "unit": "%",
+      "aliases": [
+        "TNS garçons",
+        "male net enrolment rate",
+        "male NER"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * boys_official_age_enrolled_in_level / boys_official_school_age_population",
+      "source_hints": [
+        "MEPS",
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "adjusted_net_enrollment_rate",
+      "label": "Taux net ajusté de scolarisation",
+      "definition": "Part des enfants ayant l’âge officiel d’un niveau qui sont inscrits dans ce niveau ou dans un niveau supérieur.",
+      "unit": "%",
+      "aliases": [
+        "TNA",
+        "taux net ajusté",
+        "adjusted net enrolment rate",
+        "ANER"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "UIS",
+        "MEPS",
+        "INSEED"
+      ]
+    },
+    {
+      "code": "gross_intake_rate",
+      "label": "Taux brut d’admission",
+      "definition": "Nombre total de nouveaux entrants dans la première année d’un niveau, quel que soit leur âge, rapporté à la population ayant l’âge officiel d’entrée dans ce niveau.",
+      "unit": "%",
+      "aliases": [
+        "TBA",
+        "taux brut d’accès",
+        "gross intake ratio",
+        "GIR"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "net_intake_rate",
+      "label": "Taux net d’admission",
+      "definition": "Part des enfants ayant l’âge officiel d’entrée dans un niveau qui y entrent effectivement pour la première fois.",
+      "unit": "%",
+      "aliases": [
+        "TNA admission",
+        "net intake rate",
+        "net intake ratio",
+        "NIR"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "access_rate",
+      "label": "Taux d’accès",
+      "definition": "Proportion de la population d’âge pertinent qui accède effectivement à un niveau, cycle ou première année d’enseignement selon la définition de la source.",
+      "unit": "%",
+      "aliases": [
+        "taux d’accès",
+        "taux d’admission",
+        "access rate",
+        "entry rate"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ],
+      "notes": "La définition opérationnelle peut varier selon le cycle ; conserver la formule de la source."
+    },
+    {
+      "code": "transition_rate",
+      "label": "Taux de transition",
+      "definition": "Part des élèves inscrits dans la dernière année d’un cycle qui passent au cycle ou niveau suivant à l’année scolaire suivante.",
+      "unit": "%",
+      "aliases": [
+        "taux de passage",
+        "transition scolaire",
+        "transition rate"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "completion_rate",
+      "label": "Taux d’achèvement",
+      "definition": "Part d’une cohorte ou d’un groupe d’âge pertinent ayant achevé le dernier grade d’un niveau d’enseignement.",
+      "unit": "%",
+      "aliases": [
+        "taux d’achèvement",
+        "taux de complétion",
+        "completion rate",
+        "school completion rate"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "promotion_rate",
+      "label": "Taux de promotion",
+      "definition": "Part des élèves d’un grade qui passent au grade supérieur l’année scolaire suivante.",
+      "unit": "%",
+      "aliases": [
+        "taux de promotion",
+        "taux de passage en classe supérieure",
+        "promotion rate"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "repetition_rate",
+      "label": "Taux de redoublement",
+      "definition": "Part des élèves inscrits dans un grade une année donnée qui se retrouvent dans le même grade l’année suivante.",
+      "unit": "%",
+      "aliases": [
+        "taux de redoublement",
+        "redoublement",
+        "repetition rate",
+        "repeat rate"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "dropout_rate",
+      "label": "Taux d’abandon",
+      "definition": "Part des élèves d’un groupe ou grade qui quittent le système scolaire sans être promus ni redoubler pendant la période considérée.",
+      "unit": "%",
+      "aliases": [
+        "taux d’abandon",
+        "décrochage scolaire",
+        "dropout rate",
+        "school leaving rate"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "survival_rate",
+      "label": "Taux de survie scolaire",
+      "definition": "Part d’une cohorte d’élèves ayant commencé un cycle qui atteint un grade déterminé ou le dernier grade du cycle.",
+      "unit": "%",
+      "aliases": [
+        "taux de survie",
+        "survival rate",
+        "survival to last grade"
+      ],
+      "category": "parcours",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "attendance_rate",
+      "label": "Taux de fréquentation scolaire",
+      "definition": "Part de la population d’âge concerné ayant effectivement fréquenté un établissement scolaire pendant la période de référence.",
+      "unit": "%",
+      "aliases": [
+        "taux de fréquentation",
+        "assiduité scolaire",
+        "attendance rate",
+        "school attendance rate"
+      ],
+      "category": "scolarisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "school_age_population",
+      "label": "Population d’âge scolaire",
+      "definition": "Population estimée appartenant à la tranche d’âge officielle correspondant à un niveau ou cycle d’enseignement.",
+      "unit": "personnes",
+      "aliases": [
+        "population scolarisable",
+        "population d’âge scolaire",
+        "school-age population"
+      ],
+      "category": "démographie_éducative",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "out_of_school_children",
+      "label": "Enfants hors école",
+      "definition": "Nombre d’enfants appartenant à l’âge officiel d’un niveau d’enseignement qui ne sont inscrits dans aucun niveau d’enseignement formel pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "enfants non scolarisés",
+        "enfants hors système scolaire",
+        "out-of-school children",
+        "OOSC"
+      ],
+      "category": "équité",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "out_of_school_rate",
+      "label": "Taux d’enfants hors école",
+      "definition": "Part de la population d’âge scolaire qui n’est inscrite dans aucun niveau d’enseignement formel.",
+      "unit": "%",
+      "aliases": [
+        "taux de non-scolarisation",
+        "out-of-school rate",
+        "OOS rate"
+      ],
+      "category": "équité",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 - adjusted_net_enrollment_rate (lorsque cette définition est applicable)",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "gender_parity_index",
+      "label": "Indice de parité entre les sexes",
+      "definition": "Rapport entre la valeur d’un indicateur pour les filles/femmes et celle observée pour les garçons/hommes ; 1 indique la parité.",
+      "unit": "ratio",
+      "aliases": [
+        "IPS",
+        "indice de parité filles garçons",
+        "parité filles garçons",
+        "gender parity index",
+        "GPI"
+      ],
+      "category": "équité",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "indicator_female / indicator_male",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "schools_count",
+      "label": "Nombre d’établissements — total",
+      "definition": "Nombre total d’établissements d’enseignement ayant fonctionné pendant la période de référence.",
+      "unit": "établissements",
+      "aliases": [
+        "nombre d’écoles",
+        "établissements scolaires",
+        "school count",
+        "number of schools"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "OPEN_DATA_TG",
+        "DREESTSL_TG",
+        "DEFT_TG"
+      ]
+    },
+    {
+      "code": "schools_count_public",
+      "label": "Nombre d’établissements publics",
+      "definition": "Nombre d’établissements d’enseignement de statut public ayant fonctionné pendant la période de référence.",
+      "unit": "établissements",
+      "aliases": [
+        "écoles publiques",
+        "établissements publics",
+        "public schools",
+        "public institutions"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "DREESTSL_TG",
+        "DEFT_TG"
+      ]
+    },
+    {
+      "code": "schools_count_private",
+      "label": "Nombre d’établissements privés",
+      "definition": "Nombre d’établissements d’enseignement de statut privé ayant fonctionné pendant la période de référence.",
+      "unit": "établissements",
+      "aliases": [
+        "écoles privées",
+        "établissements privés",
+        "private schools",
+        "private institutions"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "DREESTSL_TG",
+        "DEFT_TG"
+      ]
+    },
+    {
+      "code": "classrooms_count",
+      "label": "Nombre de salles de classe",
+      "definition": "Nombre total de salles de classe recensées pour l’enseignement pendant la période de référence.",
+      "unit": "salles",
+      "aliases": [
+        "salles de classe",
+        "classes physiques",
+        "classrooms",
+        "number of classrooms"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "classrooms_usable",
+      "label": "Salles de classe utilisables",
+      "definition": "Nombre de salles de classe jugées fonctionnelles et utilisables pour l’enseignement au moment de l’observation.",
+      "unit": "salles",
+      "aliases": [
+        "salles fonctionnelles",
+        "classes utilisables",
+        "usable classrooms",
+        "functional classrooms"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "classrooms_needing_rehabilitation",
+      "label": "Salles nécessitant une réhabilitation",
+      "definition": "Nombre de salles de classe nécessitant des travaux de réhabilitation importants avant ou pendant leur utilisation normale.",
+      "unit": "salles",
+      "aliases": [
+        "salles à réhabiliter",
+        "classes dégradées",
+        "classrooms needing rehabilitation"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "average_class_size",
+      "label": "Taille moyenne des classes",
+      "definition": "Nombre moyen d’élèves par classe ou groupe pédagogique selon la définition utilisée par la source.",
+      "unit": "élèves/classe",
+      "aliases": [
+        "effectif moyen par classe",
+        "taille de classe",
+        "average class size",
+        "students per class"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "enrollment_total / number_of_classes_or_class_groups",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "schools_with_electricity_rate",
+      "label": "Établissements disposant d’électricité",
+      "definition": "Part des établissements disposant d’un accès fonctionnel à l’électricité.",
+      "unit": "%",
+      "aliases": [
+        "écoles électrifiées",
+        "taux d’électrification des écoles",
+        "schools with electricity",
+        "electricity access schools"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "schools_with_drinking_water_rate",
+      "label": "Établissements disposant d’eau potable",
+      "definition": "Part des établissements disposant d’une source fonctionnelle d’eau potable ou améliorée selon le standard de la source.",
+      "unit": "%",
+      "aliases": [
+        "écoles avec eau",
+        "accès à l’eau dans les écoles",
+        "schools with drinking water"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "schools_with_functional_toilets_rate",
+      "label": "Établissements disposant de latrines/toilettes fonctionnelles",
+      "definition": "Part des établissements disposant d’installations sanitaires fonctionnelles répondant aux critères de la source.",
+      "unit": "%",
+      "aliases": [
+        "écoles avec latrines",
+        "toilettes scolaires",
+        "schools with toilets",
+        "school sanitation"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "schools_with_internet_rate",
+      "label": "Établissements connectés à Internet",
+      "definition": "Part des établissements disposant d’une connexion Internet utilisable à des fins pédagogiques ou administratives.",
+      "unit": "%",
+      "aliases": [
+        "écoles connectées",
+        "internet dans les écoles",
+        "schools with internet",
+        "internet connectivity schools"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "schools_with_computers_rate",
+      "label": "Établissements disposant d’ordinateurs",
+      "definition": "Part des établissements disposant d’équipements informatiques fonctionnels pour un usage pédagogique ou administratif.",
+      "unit": "%",
+      "aliases": [
+        "écoles équipées en ordinateurs",
+        "computer access schools",
+        "schools with computers"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "schools_accessible_disability_rate",
+      "label": "Établissements accessibles aux personnes handicapées",
+      "definition": "Part des établissements disposant d’aménagements rendant les principaux espaces accessibles aux personnes en situation de handicap.",
+      "unit": "%",
+      "aliases": [
+        "accessibilité handicap écoles",
+        "écoles accessibles",
+        "disability accessible schools"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "textbook_pupil_ratio",
+      "label": "Ratio manuels par élève",
+      "definition": "Nombre moyen de manuels scolaires disponibles pour un élève, globalement ou par matière selon la source.",
+      "unit": "manuels/élève",
+      "aliases": [
+        "ratio manuel élève",
+        "livres par élève",
+        "textbook-pupil ratio",
+        "textbooks per student"
+      ],
+      "category": "ressources_pédagogiques",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "subject"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "infrastructure_score",
+      "label": "Score d’infrastructure scolaire",
+      "definition": "Indice synthétique construit à partir de la disponibilité et de la fonctionnalité d’infrastructures scolaires telles que salles, eau, électricité, assainissement, Internet et accessibilité.",
+      "unit": "score_0_100",
+      "aliases": [
+        "indice infrastructure",
+        "score infrastructure scolaire",
+        "school infrastructure score",
+        "infrastructure index"
+      ],
+      "category": "infrastructures",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "notes": "Indicateur composite TogoQA à calculer seulement si la méthode de pondération est explicitement définie et versionnée."
+    },
+    {
+      "code": "teachers_count",
+      "label": "Enseignants — total",
+      "definition": "Nombre total d’enseignants en fonction dans les établissements couverts pendant la période de référence.",
+      "unit": "enseignants",
+      "aliases": [
+        "nombre d’enseignants",
+        "effectif enseignants",
+        "teachers",
+        "teaching staff"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "DICES_TG"
+      ]
+    },
+    {
+      "code": "teachers_female",
+      "label": "Enseignantes — femmes",
+      "definition": "Nombre d’enseignantes de sexe féminin en fonction pendant la période de référence.",
+      "unit": "enseignants",
+      "aliases": [
+        "enseignantes femmes",
+        "female teachers",
+        "women teachers"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "DICES_TG"
+      ]
+    },
+    {
+      "code": "teachers_male",
+      "label": "Enseignants — hommes",
+      "definition": "Nombre d’enseignants de sexe masculin en fonction pendant la période de référence.",
+      "unit": "enseignants",
+      "aliases": [
+        "enseignants hommes",
+        "male teachers",
+        "men teachers"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "DICES_TG"
+      ]
+    },
+    {
+      "code": "teachers_qualified",
+      "label": "Enseignants qualifiés",
+      "definition": "Nombre d’enseignants remplissant les exigences académiques ou professionnelles minimales définies par l’autorité compétente pour enseigner au niveau considéré.",
+      "unit": "enseignants",
+      "aliases": [
+        "enseignants qualifiés",
+        "enseignants diplômés",
+        "qualified teachers"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "UIS"
+      ]
+    },
+    {
+      "code": "teachers_qualified_rate",
+      "label": "Proportion d’enseignants qualifiés",
+      "definition": "Part des enseignants qui remplissent les exigences minimales de qualification applicables au niveau considéré.",
+      "unit": "%",
+      "aliases": [
+        "taux enseignants qualifiés",
+        "pourcentage enseignants qualifiés",
+        "qualified teacher rate",
+        "qualified teachers percentage"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * teachers_qualified / teachers_count",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "UIS"
+      ]
+    },
+    {
+      "code": "teachers_trained",
+      "label": "Enseignants formés",
+      "definition": "Nombre d’enseignants ayant reçu la formation pédagogique minimale requise ou reconnue pour enseigner au niveau considéré.",
+      "unit": "enseignants",
+      "aliases": [
+        "enseignants formés",
+        "trained teachers",
+        "teachers with pedagogical training"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "UIS"
+      ]
+    },
+    {
+      "code": "teachers_trained_rate",
+      "label": "Proportion d’enseignants formés",
+      "definition": "Part des enseignants ayant reçu la formation pédagogique minimale requise ou reconnue.",
+      "unit": "%",
+      "aliases": [
+        "taux enseignants formés",
+        "trained teacher rate",
+        "trained teachers percentage"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * teachers_trained / teachers_count",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "UIS"
+      ]
+    },
+    {
+      "code": "pupil_teacher_ratio",
+      "label": "Ratio élèves/enseignant",
+      "definition": "Nombre moyen d’élèves ou étudiants par enseignant au niveau considéré.",
+      "unit": "élèves/enseignant",
+      "aliases": [
+        "ratio élèves enseignants",
+        "ratio élève maître",
+        "REM",
+        "pupil-teacher ratio",
+        "student-teacher ratio",
+        "PTR"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "enrollment_total / teachers_count",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "UIS"
+      ]
+    },
+    {
+      "code": "pupil_qualified_teacher_ratio",
+      "label": "Ratio élèves/enseignant qualifié",
+      "definition": "Nombre moyen d’élèves ou étudiants par enseignant répondant aux critères de qualification du niveau considéré.",
+      "unit": "élèves/enseignant",
+      "aliases": [
+        "ratio élèves enseignant qualifié",
+        "pupil-qualified teacher ratio",
+        "student per qualified teacher"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "enrollment_total / teachers_qualified",
+      "source_hints": [
+        "MEPS",
+        "MESR",
+        "UIS"
+      ]
+    },
+    {
+      "code": "teacher_absenteeism_rate",
+      "label": "Taux d’absentéisme des enseignants",
+      "definition": "Part des enseignants qui sont absents de leur poste ou de leur classe pendant la période d’observation, selon la méthode de mesure de la source.",
+      "unit": "%",
+      "aliases": [
+        "absentéisme enseignant",
+        "teacher absenteeism",
+        "teacher absence rate"
+      ],
+      "category": "enseignants",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "notes": "Ne pas comparer des valeurs provenant de méthodes d’observation différentes sans harmonisation."
+    },
+    {
+      "code": "budget_education",
+      "label": "Budget de l’éducation",
+      "definition": "Montant budgétaire consacré au secteur de l’éducation pour la période et le périmètre institutionnel définis par la source.",
+      "unit": "FCFA",
+      "aliases": [
+        "budget éducation",
+        "dépenses éducation",
+        "education budget",
+        "education expenditure"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "OPEN_DATA_TG",
+        "DBESBNVE_TG"
+      ]
+    },
+    {
+      "code": "budget_education_voted",
+      "label": "Budget de l’éducation voté",
+      "definition": "Montant des crédits budgétaires de l’éducation autorisés/votés pour l’exercice considéré.",
+      "unit": "FCFA",
+      "aliases": [
+        "budget éducation voté",
+        "crédits votés éducation",
+        "voted education budget",
+        "approved education budget"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DBESBNVE_TG"
+      ]
+    },
+    {
+      "code": "budget_education_executed",
+      "label": "Budget de l’éducation exécuté",
+      "definition": "Montant des dépenses d’éducation effectivement exécutées ou consommées pendant l’exercice considéré.",
+      "unit": "FCFA",
+      "aliases": [
+        "budget éducation exécuté",
+        "dépenses exécutées éducation",
+        "executed education budget",
+        "actual education spending"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DBESBNVE_TG"
+      ]
+    },
+    {
+      "code": "budget_share_education",
+      "label": "Part du budget consacrée à l’éducation",
+      "definition": "Part du budget public total correspondant aux crédits ou dépenses affectés à l’éducation, selon qu’il s’agit de montants votés ou exécutés.",
+      "unit": "%",
+      "aliases": [
+        "part budget éducation",
+        "poids éducation budget",
+        "education budget share",
+        "share of budget for education"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * budget_education / national_budget_same_basis",
+      "source_hints": [
+        "DBESBNVE_TG"
+      ]
+    },
+    {
+      "code": "budget_execution_rate_education",
+      "label": "Taux d’exécution du budget de l’éducation",
+      "definition": "Part du budget voté de l’éducation qui a effectivement été exécutée pendant l’exercice.",
+      "unit": "%",
+      "aliases": [
+        "taux exécution budget éducation",
+        "education budget execution rate",
+        "budget absorption rate education"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * budget_education_executed / budget_education_voted",
+      "source_hints": [
+        "DBESBNVE_TG"
+      ]
+    },
+    {
+      "code": "education_expenditure_per_student",
+      "label": "Dépense publique par étudiant/élève",
+      "definition": "Montant moyen de dépense publique d’éducation rapporté au nombre d’élèves ou étudiants couverts par le périmètre budgétaire correspondant.",
+      "unit": "FCFA/étudiant",
+      "aliases": [
+        "dépense par étudiant",
+        "dépense par élève",
+        "coût public par étudiant",
+        "public expenditure per student",
+        "spending per student"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "public_education_expenditure / enrollment_total",
+      "source_hints": [
+        "DDPEES_TG",
+        "OPEN_DATA_TG"
+      ]
+    },
+    {
+      "code": "education_expenditure_gdp_share",
+      "label": "Dépenses publiques d’éducation en part du PIB",
+      "definition": "Dépenses publiques d’éducation exprimées en pourcentage du produit intérieur brut pour la même période.",
+      "unit": "%",
+      "aliases": [
+        "dépenses éducation PIB",
+        "education expenditure as % of GDP",
+        "education spending GDP share"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "UIS"
+      ]
+    },
+    {
+      "code": "education_current_expenditure",
+      "label": "Dépenses courantes d’éducation",
+      "definition": "Montant des dépenses courantes du secteur de l’éducation, hors dépenses d’investissement selon la classification budgétaire retenue.",
+      "unit": "FCFA",
+      "aliases": [
+        "dépenses courantes éducation",
+        "recurrent education expenditure",
+        "current education spending"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number"
+    },
+    {
+      "code": "education_capital_expenditure",
+      "label": "Dépenses d’investissement d’éducation",
+      "definition": "Montant des dépenses d’investissement ou en capital consacrées au secteur de l’éducation.",
+      "unit": "FCFA",
+      "aliases": [
+        "investissement éducation",
+        "dépenses capital éducation",
+        "capital education expenditure",
+        "education investment spending"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number"
+    },
+    {
+      "code": "scholarship_beneficiaries",
+      "label": "Bénéficiaires de bourses",
+      "definition": "Nombre de personnes ayant bénéficié d’une bourse ou aide publique à la scolarité/aux études pendant la période considérée.",
+      "unit": "bénéficiaires",
+      "aliases": [
+        "boursiers",
+        "bénéficiaires bourse",
+        "scholarship beneficiaries",
+        "students receiving scholarships"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MESR"
+      ]
+    },
+    {
+      "code": "scholarship_budget",
+      "label": "Budget des bourses",
+      "definition": "Montant total consacré aux bourses ou aides financières aux apprenants pendant la période considérée.",
+      "unit": "FCFA",
+      "aliases": [
+        "budget bourses",
+        "montant des bourses",
+        "scholarship budget",
+        "student aid budget"
+      ],
+      "category": "financement",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MESR"
+      ]
+    },
+    {
+      "code": "literacy_rate",
+      "label": "Taux d’alphabétisation — total",
+      "definition": "Part de la population du groupe d’âge considéré capable de lire et écrire, avec compréhension, une phrase simple sur sa vie quotidienne selon la définition statistique retenue.",
+      "unit": "%",
+      "aliases": [
+        "taux alphabétisation",
+        "alphabétisation",
+        "literacy rate"
+      ],
+      "category": "alphabétisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "age_group"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "literacy_rate_female",
+      "label": "Taux d’alphabétisation — femmes",
+      "definition": "Taux d’alphabétisation mesuré pour les filles ou femmes du groupe d’âge considéré.",
+      "unit": "%",
+      "aliases": [
+        "alphabétisation femmes",
+        "taux alphabétisation féminin",
+        "female literacy rate",
+        "women literacy rate"
+      ],
+      "category": "alphabétisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "age_group"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "literacy_rate_male",
+      "label": "Taux d’alphabétisation — hommes",
+      "definition": "Taux d’alphabétisation mesuré pour les garçons ou hommes du groupe d’âge considéré.",
+      "unit": "%",
+      "aliases": [
+        "alphabétisation hommes",
+        "taux alphabétisation masculin",
+        "male literacy rate",
+        "men literacy rate"
+      ],
+      "category": "alphabétisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "age_group"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "youth_literacy_rate",
+      "label": "Taux d’alphabétisation des jeunes",
+      "definition": "Part des jeunes de la tranche d’âge définie par la source, généralement 15-24 ans, considérés comme alphabétisés.",
+      "unit": "%",
+      "aliases": [
+        "alphabétisation jeunes",
+        "taux alphabétisation 15-24",
+        "youth literacy rate"
+      ],
+      "category": "alphabétisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "sex"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "adult_literacy_rate",
+      "label": "Taux d’alphabétisation des adultes",
+      "definition": "Part de la population adulte de la tranche d’âge définie par la source, généralement 15 ans et plus, considérée comme alphabétisée.",
+      "unit": "%",
+      "aliases": [
+        "alphabétisation adultes",
+        "taux alphabétisation adulte",
+        "adult literacy rate"
+      ],
+      "category": "alphabétisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "sex"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "INSEED",
+        "UIS"
+      ]
+    },
+    {
+      "code": "nonformal_education_enrollment",
+      "label": "Effectif de l’éducation non formelle",
+      "definition": "Nombre d’apprenants inscrits dans des programmes d’alphabétisation ou d’éducation non formelle pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "apprenants non formels",
+        "éducation non formelle effectif",
+        "non-formal education enrollment"
+      ],
+      "category": "alphabétisation",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer"
+    },
+    {
+      "code": "students_with_disabilities",
+      "label": "Apprenants en situation de handicap",
+      "definition": "Nombre d’élèves ou étudiants identifiés comme étant en situation de handicap selon les catégories et méthodes de la source.",
+      "unit": "personnes",
+      "aliases": [
+        "élèves handicapés",
+        "étudiants handicapés",
+        "learners with disabilities",
+        "students with disabilities"
+      ],
+      "category": "équité",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS",
+        "MESR"
+      ]
+    },
+    {
+      "code": "reading_minimum_proficiency_rate",
+      "label": "Atteinte du niveau minimal en lecture",
+      "definition": "Part des apprenants atteignant au moins le niveau minimal de compétence défini pour la lecture dans l’évaluation considérée.",
+      "unit": "%",
+      "aliases": [
+        "compétence minimale lecture",
+        "niveau minimal lecture",
+        "minimum proficiency reading",
+        "reading proficiency rate"
+      ],
+      "category": "apprentissages",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "assessment",
+        "grade",
+        "sex"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "PASEC",
+        "UIS"
+      ]
+    },
+    {
+      "code": "mathematics_minimum_proficiency_rate",
+      "label": "Atteinte du niveau minimal en mathématiques",
+      "definition": "Part des apprenants atteignant au moins le niveau minimal de compétence défini pour les mathématiques dans l’évaluation considérée.",
+      "unit": "%",
+      "aliases": [
+        "compétence minimale maths",
+        "niveau minimal mathématiques",
+        "minimum proficiency mathematics",
+        "math proficiency rate"
+      ],
+      "category": "apprentissages",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "assessment",
+        "grade",
+        "sex"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "PASEC",
+        "UIS"
+      ]
+    },
+    {
+      "code": "learning_achievement_score",
+      "label": "Score d’acquis scolaires",
+      "definition": "Score moyen ou indice synthétique de performance obtenu par les apprenants dans une évaluation standardisée des acquis.",
+      "unit": "points",
+      "aliases": [
+        "score d’apprentissage",
+        "score PASEC",
+        "learning achievement score",
+        "learning outcomes score"
+      ],
+      "category": "apprentissages",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural",
+        "assessment",
+        "subject",
+        "grade",
+        "sex"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "PASEC"
+      ]
+    },
+    {
+      "code": "tvet_institutions_count",
+      "label": "Établissements de formation technique et professionnelle",
+      "definition": "Nombre d’établissements ou centres de formation technique et professionnelle ayant fonctionné pendant la période de référence.",
+      "unit": "établissements",
+      "aliases": [
+        "établissements techniques",
+        "centres de formation professionnelle",
+        "TVET institutions",
+        "technical training institutions"
+      ],
+      "category": "formation_technique",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DEFT_TG",
+        "OPEN_DATA_TG"
+      ]
+    },
+    {
+      "code": "tvet_enrollment_total",
+      "label": "Effectif en formation technique/professionnelle — total",
+      "definition": "Nombre total d’apprenants inscrits dans les filières techniques ou de formation professionnelle.",
+      "unit": "personnes",
+      "aliases": [
+        "effectif technique",
+        "inscrits formation professionnelle",
+        "TVET enrollment",
+        "vocational enrollment"
+      ],
+      "category": "formation_technique",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DEFT_TG"
+      ]
+    },
+    {
+      "code": "tvet_enrollment_female",
+      "label": "Effectif en formation technique/professionnelle — filles/femmes",
+      "definition": "Nombre d’apprenantes inscrites dans les filières techniques ou de formation professionnelle.",
+      "unit": "personnes",
+      "aliases": [
+        "filles formation technique",
+        "female TVET enrollment",
+        "women vocational enrollment"
+      ],
+      "category": "formation_technique",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DEFT_TG"
+      ]
+    },
+    {
+      "code": "tvet_enrollment_male",
+      "label": "Effectif en formation technique/professionnelle — garçons/hommes",
+      "definition": "Nombre d’apprenants masculins inscrits dans les filières techniques ou de formation professionnelle.",
+      "unit": "personnes",
+      "aliases": [
+        "garçons formation technique",
+        "male TVET enrollment",
+        "men vocational enrollment"
+      ],
+      "category": "formation_technique",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DEFT_TG"
+      ]
+    },
+    {
+      "code": "tvet_graduates_total",
+      "label": "Diplômés de la formation technique/professionnelle",
+      "definition": "Nombre total d’apprenants ayant obtenu un diplôme ou certificat de formation technique/professionnelle pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "diplômés technique",
+        "lauréats formation professionnelle",
+        "TVET graduates",
+        "vocational graduates"
+      ],
+      "category": "formation_technique",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DEFT_TG"
+      ]
+    },
+    {
+      "code": "tvet_completion_rate",
+      "label": "Taux d’achèvement en formation technique/professionnelle",
+      "definition": "Part des apprenants d’une cohorte ou période qui terminent avec succès leur programme de formation technique/professionnelle.",
+      "unit": "%",
+      "aliases": [
+        "achèvement TVET",
+        "taux fin formation professionnelle",
+        "TVET completion rate"
+      ],
+      "category": "formation_technique",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DEFT_TG"
+      ]
+    },
+    {
+      "code": "apprentices_enrollment",
+      "label": "Apprentis inscrits",
+      "definition": "Nombre d’apprenants inscrits dans un dispositif formel ou reconnu d’apprentissage professionnel.",
+      "unit": "personnes",
+      "aliases": [
+        "apprentis",
+        "effectif apprentissage",
+        "apprentices",
+        "apprenticeship enrollment"
+      ],
+      "category": "formation_technique",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer"
+    },
+    {
+      "code": "tertiary_enrollment_total",
+      "label": "Effectif de l’enseignement supérieur — total",
+      "definition": "Nombre total d’étudiants inscrits dans les établissements d’enseignement supérieur couverts pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "étudiants supérieur",
+        "effectif supérieur",
+        "tertiary enrollment",
+        "higher education enrollment"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DICES_TG",
+        "DISES_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "tertiary_enrollment_female",
+      "label": "Effectif de l’enseignement supérieur — femmes",
+      "definition": "Nombre d’étudiantes inscrites dans l’enseignement supérieur pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "étudiantes supérieur",
+        "femmes université",
+        "female tertiary enrollment",
+        "women higher education enrollment"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DICES_TG",
+        "DISES_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "tertiary_enrollment_male",
+      "label": "Effectif de l’enseignement supérieur — hommes",
+      "definition": "Nombre d’étudiants masculins inscrits dans l’enseignement supérieur pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "étudiants hommes supérieur",
+        "male tertiary enrollment",
+        "men higher education enrollment"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DICES_TG",
+        "DISES_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "tertiary_gross_enrollment_rate",
+      "label": "Taux brut de scolarisation dans le supérieur",
+      "definition": "Effectif total de l’enseignement supérieur, quel que soit l’âge, rapporté à la population du groupe d’âge de référence immédiatement après le secondaire supérieur, selon la définition de la source.",
+      "unit": "%",
+      "aliases": [
+        "taux brut supérieur",
+        "inscriptions supérieur % brut",
+        "tertiary gross enrollment ratio",
+        "higher education GER"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DISES_TG",
+        "UIS"
+      ]
+    },
+    {
+      "code": "tertiary_gross_enrollment_rate_female",
+      "label": "Taux brut de scolarisation dans le supérieur — femmes",
+      "definition": "Taux brut de scolarisation dans l’enseignement supérieur calculé pour les femmes.",
+      "unit": "%",
+      "aliases": [
+        "taux brut supérieur femmes",
+        "female tertiary GER",
+        "women higher education gross enrollment rate"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DISES_TG",
+        "UIS"
+      ]
+    },
+    {
+      "code": "tertiary_gross_enrollment_rate_male",
+      "label": "Taux brut de scolarisation dans le supérieur — hommes",
+      "definition": "Taux brut de scolarisation dans l’enseignement supérieur calculé pour les hommes.",
+      "unit": "%",
+      "aliases": [
+        "taux brut supérieur hommes",
+        "male tertiary GER",
+        "men higher education gross enrollment rate"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DISES_TG",
+        "UIS"
+      ]
+    },
+    {
+      "code": "higher_education_institutions_count",
+      "label": "Établissements d’enseignement supérieur — total",
+      "definition": "Nombre total d’établissements d’enseignement supérieur ayant fonctionné pendant la période de référence.",
+      "unit": "établissements",
+      "aliases": [
+        "universités et écoles supérieures",
+        "établissements supérieur",
+        "higher education institutions",
+        "tertiary institutions"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DREESTSL_TG",
+        "DICES_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "higher_education_institutions_public",
+      "label": "Établissements d’enseignement supérieur publics",
+      "definition": "Nombre d’établissements d’enseignement supérieur de statut public ayant fonctionné pendant la période de référence.",
+      "unit": "établissements",
+      "aliases": [
+        "universités publiques",
+        "établissements supérieurs publics",
+        "public higher education institutions"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DREESTSL_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "higher_education_institutions_private",
+      "label": "Établissements d’enseignement supérieur privés",
+      "definition": "Nombre d’établissements d’enseignement supérieur de statut privé ayant fonctionné pendant la période de référence.",
+      "unit": "établissements",
+      "aliases": [
+        "universités privées",
+        "établissements supérieurs privés",
+        "private higher education institutions"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DREESTSL_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "higher_education_students_per_100k",
+      "label": "Étudiants du supérieur pour 100 000 habitants",
+      "definition": "Nombre d’étudiants inscrits dans l’enseignement supérieur rapporté à 100 000 habitants.",
+      "unit": "étudiants/100000 habitants",
+      "aliases": [
+        "étudiants pour 100000 habitants",
+        "tertiary students per 100,000 population",
+        "higher education students density"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100000 * tertiary_enrollment_total / population_total",
+      "source_hints": [
+        "DICES_TG",
+        "INSEED"
+      ]
+    },
+    {
+      "code": "tertiary_graduates_total",
+      "label": "Diplômés de l’enseignement supérieur — total",
+      "definition": "Nombre total d’étudiants ayant obtenu un diplôme de l’enseignement supérieur pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "diplômés supérieur",
+        "lauréats université",
+        "tertiary graduates",
+        "higher education graduates"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DICES_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "tertiary_graduates_female",
+      "label": "Diplômées de l’enseignement supérieur — femmes",
+      "definition": "Nombre de femmes ayant obtenu un diplôme de l’enseignement supérieur pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "diplômées supérieur",
+        "female tertiary graduates",
+        "women higher education graduates"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DICES_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "tertiary_graduates_male",
+      "label": "Diplômés de l’enseignement supérieur — hommes",
+      "definition": "Nombre d’hommes ayant obtenu un diplôme de l’enseignement supérieur pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "diplômés hommes supérieur",
+        "male tertiary graduates",
+        "men higher education graduates"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DICES_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "higher_education_teachers_count",
+      "label": "Enseignants du supérieur",
+      "definition": "Nombre total d’enseignants ou personnels académiques exerçant dans les établissements d’enseignement supérieur couverts.",
+      "unit": "enseignants",
+      "aliases": [
+        "enseignants université",
+        "personnel enseignant supérieur",
+        "higher education teachers",
+        "academic staff"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "DICES_TG",
+        "MESR"
+      ]
+    },
+    {
+      "code": "tertiary_student_teacher_ratio",
+      "label": "Ratio étudiants/enseignant dans le supérieur",
+      "definition": "Nombre moyen d’étudiants inscrits par enseignant ou personnel académique dans le supérieur.",
+      "unit": "étudiants/enseignant",
+      "aliases": [
+        "ratio étudiants enseignants supérieur",
+        "tertiary student-teacher ratio",
+        "higher education student staff ratio"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "tertiary_enrollment_total / higher_education_teachers_count",
+      "source_hints": [
+        "DICES_TG"
+      ]
+    },
+    {
+      "code": "public_expenditure_per_tertiary_student",
+      "label": "Dépense publique par étudiant du supérieur",
+      "definition": "Dépense publique moyenne consacrée à chaque étudiant du supérieur pour la période considérée.",
+      "unit": "FCFA/étudiant",
+      "aliases": [
+        "dépense publique étudiant supérieur",
+        "coût public par étudiant supérieur",
+        "public expenditure per tertiary student"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DDPEES_TG"
+      ]
+    },
+    {
+      "code": "higher_education_budget_voted",
+      "label": "Budget voté de l’enseignement supérieur",
+      "definition": "Montant du budget de l’enseignement supérieur officiellement voté pour l’exercice considéré.",
+      "unit": "FCFA",
+      "aliases": [
+        "budget supérieur voté",
+        "voted higher education budget",
+        "approved tertiary budget"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DBESBNVE_TG"
+      ]
+    },
+    {
+      "code": "higher_education_budget_executed",
+      "label": "Budget exécuté de l’enseignement supérieur",
+      "definition": "Montant du budget de l’enseignement supérieur effectivement exécuté pendant l’exercice considéré.",
+      "unit": "FCFA",
+      "aliases": [
+        "budget supérieur exécuté",
+        "executed higher education budget",
+        "actual tertiary spending"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DBESBNVE_TG"
+      ]
+    },
+    {
+      "code": "higher_education_budget_execution_rate",
+      "label": "Taux d’exécution du budget de l’enseignement supérieur",
+      "definition": "Part du budget voté de l’enseignement supérieur effectivement exécutée pendant l’exercice.",
+      "unit": "%",
+      "aliases": [
+        "taux exécution budget supérieur",
+        "higher education budget execution rate"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * higher_education_budget_executed / higher_education_budget_voted",
+      "source_hints": [
+        "DBESBNVE_TG"
+      ]
+    },
+    {
+      "code": "graduate_unemployment_rate_tertiary",
+      "label": "Taux de chômage des diplômés du supérieur",
+      "definition": "Part de la population active diplômée de l’enseignement supérieur qui est au chômage selon la définition statistique de la source.",
+      "unit": "%",
+      "aliases": [
+        "chômage diplômés supérieur",
+        "taux chômage diplômés",
+        "graduate unemployment rate",
+        "tertiary graduate unemployment"
+      ],
+      "category": "enseignement_supérieur",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "DCDES_TG",
+        "INSEED"
+      ]
+    },
+    {
+      "code": "preprimary_enrollment_total",
+      "label": "Effectif du préscolaire — total",
+      "definition": "Nombre total d’enfants inscrits dans l’enseignement préscolaire pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "effectif préscolaire",
+        "maternelle inscrits",
+        "pre-primary enrollment",
+        "preschool enrollment"
+      ],
+      "category": "préscolaire",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "preprimary_enrollment_girls",
+      "label": "Effectif du préscolaire — filles",
+      "definition": "Nombre de filles inscrites dans l’enseignement préscolaire pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "filles préscolaire",
+        "female pre-primary enrollment",
+        "girls preschool enrollment"
+      ],
+      "category": "préscolaire",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "preprimary_enrollment_boys",
+      "label": "Effectif du préscolaire — garçons",
+      "definition": "Nombre de garçons inscrits dans l’enseignement préscolaire pendant la période de référence.",
+      "unit": "personnes",
+      "aliases": [
+        "garçons préscolaire",
+        "male pre-primary enrollment",
+        "boys preschool enrollment"
+      ],
+      "category": "préscolaire",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer",
+      "source_hints": [
+        "MEPS"
+      ]
+    },
+    {
+      "code": "preprimary_gross_enrollment_rate",
+      "label": "Taux brut de scolarisation au préscolaire",
+      "definition": "Nombre total d’enfants inscrits au préscolaire, quel que soit leur âge, rapporté à la population ayant officiellement l’âge du préscolaire.",
+      "unit": "%",
+      "aliases": [
+        "TBS préscolaire",
+        "preschool gross enrollment rate",
+        "pre-primary GER"
+      ],
+      "category": "préscolaire",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "source_hints": [
+        "MEPS",
+        "UIS"
+      ]
+    },
+    {
+      "code": "school_meals_beneficiaries",
+      "label": "Bénéficiaires de cantines scolaires",
+      "definition": "Nombre d’apprenants bénéficiant d’un programme de repas ou de cantine scolaire pendant la période considérée.",
+      "unit": "bénéficiaires",
+      "aliases": [
+        "bénéficiaires cantines",
+        "élèves cantine",
+        "school meals beneficiaries",
+        "school feeding beneficiaries"
+      ],
+      "category": "protection_sociale",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "integer"
+    },
+    {
+      "code": "school_meals_coverage_rate",
+      "label": "Taux de couverture des cantines scolaires",
+      "definition": "Part des apprenants du périmètre considéré bénéficiant d’un programme de repas ou de cantine scolaire.",
+      "unit": "%",
+      "aliases": [
+        "couverture cantines",
+        "taux cantine scolaire",
+        "school meals coverage",
+        "school feeding coverage rate"
+      ],
+      "category": "protection_sociale",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "formula": "100 * school_meals_beneficiaries / target_enrollment"
+    },
+    {
+      "code": "data_completeness_score",
+      "label": "Score de complétude des données",
+      "definition": "Score TogoQA représentant la proportion des champs ou dimensions attendus effectivement renseignés pour un indicateur et une période donnés.",
+      "unit": "score_0_100",
+      "aliases": [
+        "complétude données",
+        "data completeness score",
+        "dataset completeness"
+      ],
+      "category": "qualité_des_données",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "notes": "Méta-indicateur TogoQA, pas un indicateur éducatif officiel."
+    },
+    {
+      "code": "source_agreement_score",
+      "label": "Score de concordance des sources",
+      "definition": "Score TogoQA mesurant le degré d’accord entre plusieurs sources indépendantes sur une même valeur ou affirmation après harmonisation de la période et de la définition.",
+      "unit": "score_0_100",
+      "aliases": [
+        "concordance sources",
+        "source agreement",
+        "source consistency score"
+      ],
+      "category": "qualité_des_données",
+      "dimensions": [
+        "year",
+        "school_year",
+        "education_level",
+        "grade",
+        "region",
+        "prefecture",
+        "commune",
+        "institution_status",
+        "institution_type",
+        "urban_rural"
+      ],
+      "value_type": "number",
+      "notes": "Méta-indicateur TogoQA utilisé par le contrôleur d’incertitude."
+    }
+  ],
+  "stats": {
+    "indicator_count": 122,
+    "category_count": 16,
+    "categories": [
+      "alphabétisation",
+      "apprentissages",
+      "démographie_éducative",
+      "enseignants",
+      "enseignement_supérieur",
+      "examens",
+      "financement",
+      "formation_technique",
+      "infrastructures",
+      "parcours",
+      "protection_sociale",
+      "préscolaire",
+      "qualité_des_données",
+      "ressources_pédagogiques",
+      "scolarisation",
+      "équité"
+    ]
+  }
+}

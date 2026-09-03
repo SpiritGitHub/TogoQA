@@ -1,0 +1,672 @@
+{
+  "metadata": {
+    "name": "TogoQA PII & Privacy Rules",
+    "version": "1.0.0",
+    "language": "fr",
+    "scope": [
+      "TogoQA",
+      "TogoQA-Education",
+      "ingestion",
+      "retrieval",
+      "generation",
+      "logs",
+      "exports",
+      "benchmark"
+    ],
+    "legal_baseline": [
+      {
+        "jurisdiction": "Togo",
+        "reference": "Loi n°2019-014 du 29 octobre 2019 relative à la protection des données à caractère personnel",
+        "authority": "IPDCP"
+      }
+    ],
+    "design_note": "Référentiel technique initial à valider juridiquement avant mise en production avec des données personnelles réelles.",
+    "default_language": "fr"
+  },
+  "global_policy": {
+    "principles": [
+      "data_minimization",
+      "purpose_limitation",
+      "need_to_know_access",
+      "privacy_by_default",
+      "privacy_by_design",
+      "source_traceability",
+      "no_raw_sensitive_pii_to_external_llm",
+      "aggregate_first",
+      "human_review_for_high_risk_cases",
+      "auditability"
+    ],
+    "default_action_on_unknown_pii": "quarantine_and_review",
+    "min_group_size_for_public_aggregate": 10,
+    "small_cell_action": "suppress_or_coarsen",
+    "minor_data_policy": "treat_as_high_risk",
+    "external_llm_policy": {
+      "direct_identifiers": "block",
+      "high_risk_education_records": "block_or_pseudonymize",
+      "aggregate_statistics": "allow",
+      "public_official_information": "allow_if_relevant_and_sourced"
+    },
+    "logging_policy": {
+      "store_raw_prompt_with_pii": false,
+      "store_redacted_prompt": true,
+      "store_detection_events": true,
+      "store_hash_for_deduplication": true,
+      "retention_days_default": 90
+    }
+  },
+  "risk_levels": {
+    "LOW": {
+      "score": 1,
+      "description": "Faible risque de ré-identification"
+    },
+    "MEDIUM": {
+      "score": 2,
+      "description": "Donnée personnelle ou quasi-identifiante"
+    },
+    "HIGH": {
+      "score": 3,
+      "description": "Identifiant direct ou donnée individuelle sensible pour TogoQA"
+    },
+    "CRITICAL": {
+      "score": 4,
+      "description": "Biométrie, secret d'authentification ou combinaison permettant une ré-identification forte"
+    }
+  },
+  "actions": {
+    "allow": "Conserver et traiter normalement.",
+    "allow_if_public_and_relevant": "Autoriser uniquement si l'information est déjà publique, pertinente et correctement sourcée.",
+    "mask": "Masquer partiellement la valeur.",
+    "redact": "Remplacer par un jeton de type [PII_TYPE].",
+    "pseudonymize": "Remplacer par un identifiant technique non directement identifiant.",
+    "aggregate": "Transformer en statistique agrégée.",
+    "suppress": "Ne pas exposer la valeur.",
+    "quarantine_and_review": "Isoler la donnée et exiger une revue humaine.",
+    "block": "Refuser l'ingestion, la génération ou l'export dans ce contexte."
+  },
+  "pii_rules": [
+    {
+      "code": "person_full_name",
+      "label": "Nom complet d'une personne",
+      "definition": "Nom et prénom permettant d'identifier directement une personne physique.",
+      "category": "direct_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "nom complet",
+        "nom et prénom",
+        "full name",
+        "student name",
+        "candidate name"
+      ],
+      "examples_synthetic": [
+        "KOFFI Ama Mensah"
+      ],
+      "default_action": "redact",
+      "allowed_contexts": [
+        "public_official_information_if_relevant"
+      ],
+      "education_notes": "Ne pas exposer le nom d'un élève, candidat ou étudiant dans TogoQA."
+    },
+    {
+      "code": "phone_number",
+      "label": "Numéro de téléphone",
+      "definition": "Numéro permettant de contacter directement une personne.",
+      "category": "direct_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "téléphone",
+        "tel",
+        "mobile",
+        "phone",
+        "whatsapp"
+      ],
+      "detection_hints": [
+        "Préfixe +228 ou formats locaux à 8 chiffres ; valider le contexte pour réduire les faux positifs."
+      ],
+      "default_action": "mask"
+    },
+    {
+      "code": "email_address",
+      "label": "Adresse e-mail personnelle",
+      "definition": "Adresse électronique rattachable à une personne physique.",
+      "category": "direct_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "email",
+        "e-mail",
+        "courriel",
+        "mail"
+      ],
+      "default_action": "mask"
+    },
+    {
+      "code": "national_identity_number",
+      "label": "Numéro de pièce nationale d'identité",
+      "definition": "Identifiant figurant sur une pièce nationale d'identité.",
+      "category": "government_identifier",
+      "risk": "CRITICAL",
+      "aliases": [
+        "CNI",
+        "numéro d'identité",
+        "national ID",
+        "NPI si applicable au document"
+      ],
+      "default_action": "block"
+    },
+    {
+      "code": "passport_number",
+      "label": "Numéro de passeport",
+      "definition": "Identifiant unique d'un passeport.",
+      "category": "government_identifier",
+      "risk": "CRITICAL",
+      "aliases": [
+        "passeport",
+        "passport number"
+      ],
+      "default_action": "block"
+    },
+    {
+      "code": "birth_certificate_number",
+      "label": "Numéro d'acte de naissance",
+      "definition": "Référence permettant de retrouver un acte de naissance individuel.",
+      "category": "government_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "acte de naissance",
+        "numéro naissance",
+        "birth certificate"
+      ],
+      "default_action": "redact"
+    },
+    {
+      "code": "student_id",
+      "label": "Matricule élève ou étudiant",
+      "definition": "Identifiant attribué à un élève ou étudiant par une institution ou un système éducatif.",
+      "category": "education_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "matricule",
+        "student id",
+        "student number",
+        "numéro étudiant",
+        "identifiant élève"
+      ],
+      "default_action": "pseudonymize"
+    },
+    {
+      "code": "exam_candidate_number",
+      "label": "Numéro de candidat à un examen",
+      "definition": "Identifiant individuel utilisé pour l'inscription ou la consultation de résultats d'examen.",
+      "category": "education_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "numéro candidat",
+        "candidate number",
+        "numéro de table",
+        "numéro d'examen"
+      ],
+      "default_action": "pseudonymize"
+    },
+    {
+      "code": "employee_or_teacher_id",
+      "label": "Matricule enseignant ou personnel",
+      "definition": "Identifiant administratif d'un enseignant ou autre agent.",
+      "category": "employment_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "matricule enseignant",
+        "matricule agent",
+        "teacher id",
+        "employee id"
+      ],
+      "default_action": "pseudonymize"
+    },
+    {
+      "code": "postal_address",
+      "label": "Adresse résidentielle précise",
+      "definition": "Adresse suffisamment précise pour localiser le domicile d'une personne.",
+      "category": "location_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "adresse domicile",
+        "adresse personnelle",
+        "home address"
+      ],
+      "default_action": "redact"
+    },
+    {
+      "code": "precise_geolocation",
+      "label": "Géolocalisation individuelle précise",
+      "definition": "Coordonnées ou localisation fine associées à une personne identifiable.",
+      "category": "location_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "GPS",
+        "latitude longitude",
+        "coordonnées",
+        "precise location"
+      ],
+      "default_action": "aggregate"
+    },
+    {
+      "code": "date_of_birth",
+      "label": "Date de naissance",
+      "definition": "Date de naissance complète d'une personne.",
+      "category": "quasi_identifier",
+      "risk": "MEDIUM",
+      "aliases": [
+        "date de naissance",
+        "DOB",
+        "birth date"
+      ],
+      "default_action": "coarsen_to_age_band"
+    },
+    {
+      "code": "exact_age",
+      "label": "Âge exact",
+      "definition": "Âge précis d'une personne pouvant contribuer à sa ré-identification dans un petit groupe.",
+      "category": "quasi_identifier",
+      "risk": "MEDIUM",
+      "aliases": [
+        "âge",
+        "age"
+      ],
+      "default_action": "coarsen_to_age_band"
+    },
+    {
+      "code": "gender_individual",
+      "label": "Sexe/genre individuel",
+      "definition": "Information individuelle de sexe ou genre lorsqu'elle est associée à d'autres identifiants.",
+      "category": "quasi_identifier",
+      "risk": "MEDIUM",
+      "aliases": [
+        "sexe",
+        "genre",
+        "gender",
+        "sex"
+      ],
+      "default_action": "aggregate",
+      "notes": "Les statistiques agrégées filles/garçons sont autorisées si le groupe respecte le seuil de protection."
+    },
+    {
+      "code": "school_affiliation_individual",
+      "label": "Établissement fréquenté par une personne",
+      "definition": "Lien entre une personne identifiable et son établissement, classe, filière ou promotion.",
+      "category": "quasi_identifier",
+      "risk": "MEDIUM",
+      "aliases": [
+        "école fréquentée",
+        "établissement",
+        "classe",
+        "filière",
+        "promotion"
+      ],
+      "default_action": "pseudonymize_or_aggregate"
+    },
+    {
+      "code": "individual_exam_result",
+      "label": "Résultat individuel d'examen",
+      "definition": "Admis/ajourné, score, rang ou résultat d'examen rattachable à un candidat.",
+      "category": "education_record",
+      "risk": "HIGH",
+      "aliases": [
+        "résultat candidat",
+        "note examen",
+        "score individuel",
+        "exam result",
+        "rank"
+      ],
+      "default_action": "block_or_aggregate"
+    },
+    {
+      "code": "student_grades",
+      "label": "Notes scolaires individuelles",
+      "definition": "Notes, moyennes ou appréciations rattachables à un élève ou étudiant.",
+      "category": "education_record",
+      "risk": "HIGH",
+      "aliases": [
+        "note",
+        "moyenne",
+        "bulletin",
+        "grade",
+        "GPA"
+      ],
+      "default_action": "block_or_aggregate"
+    },
+    {
+      "code": "attendance_record",
+      "label": "Présence/absence individuelle",
+      "definition": "Historique de présence, absence ou retard d'un apprenant identifiable.",
+      "category": "education_record",
+      "risk": "HIGH",
+      "aliases": [
+        "absence",
+        "présence",
+        "attendance",
+        "retard"
+      ],
+      "default_action": "block_or_aggregate"
+    },
+    {
+      "code": "disciplinary_record",
+      "label": "Dossier disciplinaire",
+      "definition": "Sanctions, avertissements ou incidents disciplinaires liés à une personne.",
+      "category": "education_record",
+      "risk": "HIGH",
+      "aliases": [
+        "discipline",
+        "sanction",
+        "exclusion",
+        "disciplinary record"
+      ],
+      "default_action": "block"
+    },
+    {
+      "code": "disability_or_special_needs",
+      "label": "Handicap ou besoins éducatifs particuliers individuels",
+      "definition": "Information individuelle relative au handicap ou aux besoins éducatifs spécifiques.",
+      "category": "sensitive_personal_data",
+      "risk": "CRITICAL",
+      "aliases": [
+        "handicap",
+        "besoins spéciaux",
+        "special needs",
+        "disability"
+      ],
+      "default_action": "aggregate"
+    },
+    {
+      "code": "health_information",
+      "label": "Donnée de santé",
+      "definition": "Information relative à l'état de santé physique ou mentale d'une personne.",
+      "category": "sensitive_personal_data",
+      "risk": "CRITICAL",
+      "aliases": [
+        "santé",
+        "maladie",
+        "diagnostic",
+        "health",
+        "medical"
+      ],
+      "default_action": "block_or_aggregate"
+    },
+    {
+      "code": "biometric_data",
+      "label": "Donnée biométrique",
+      "definition": "Empreinte, visage, iris, voix biométrique ou autre gabarit biométrique permettant l'identification.",
+      "category": "sensitive_personal_data",
+      "risk": "CRITICAL",
+      "aliases": [
+        "empreinte",
+        "biométrie",
+        "face template",
+        "iris",
+        "fingerprint"
+      ],
+      "default_action": "block"
+    },
+    {
+      "code": "photo_identifiable_person",
+      "label": "Photo d'une personne identifiable",
+      "definition": "Image permettant raisonnablement d'identifier une personne.",
+      "category": "biometric_or_direct_identifier",
+      "risk": "HIGH",
+      "aliases": [
+        "photo élève",
+        "portrait",
+        "face image"
+      ],
+      "default_action": "block_or_blur"
+    },
+    {
+      "code": "signature",
+      "label": "Signature manuscrite ou électronique personnelle",
+      "definition": "Signature pouvant authentifier ou identifier une personne.",
+      "category": "authentication_identifier",
+      "risk": "CRITICAL",
+      "aliases": [
+        "signature",
+        "signature électronique"
+      ],
+      "default_action": "block"
+    },
+    {
+      "code": "bank_account_or_payment_identifier",
+      "label": "Coordonnées bancaires ou de paiement",
+      "definition": "Compte bancaire, portefeuille mobile ou autre identifiant financier individuel.",
+      "category": "financial_identifier",
+      "risk": "CRITICAL",
+      "aliases": [
+        "IBAN",
+        "compte bancaire",
+        "mobile money",
+        "wallet",
+        "payment account"
+      ],
+      "default_action": "block"
+    },
+    {
+      "code": "password_secret_token",
+      "label": "Secret d'authentification",
+      "definition": "Mot de passe, token, clé API, code OTP ou secret permettant un accès.",
+      "category": "secret",
+      "risk": "CRITICAL",
+      "aliases": [
+        "password",
+        "mot de passe",
+        "token",
+        "api key",
+        "OTP",
+        "secret"
+      ],
+      "default_action": "block"
+    },
+    {
+      "code": "parent_guardian_identity",
+      "label": "Identité d'un parent ou tuteur",
+      "definition": "Nom, contact ou identifiant d'un parent/tuteur lié à un apprenant.",
+      "category": "linked_personal_data",
+      "risk": "HIGH",
+      "aliases": [
+        "parent",
+        "tuteur",
+        "guardian",
+        "contact parent"
+      ],
+      "default_action": "redact"
+    },
+    {
+      "code": "free_text_reidentification",
+      "label": "Ré-identification par texte libre",
+      "definition": "Combinaison de détails non structurés pouvant permettre d'identifier une personne.",
+      "category": "derived_risk",
+      "risk": "HIGH",
+      "aliases": [
+        "texte libre",
+        "commentaire",
+        "observation"
+      ],
+      "default_action": "quarantine_and_review"
+    }
+  ],
+  "non_pii_examples": [
+    {
+      "code": "school_name",
+      "label": "Nom d'un établissement",
+      "rule": "Le nom d'un établissement n'est pas en soi une donnée personnelle."
+    },
+    {
+      "code": "aggregate_exam_statistics",
+      "label": "Statistiques agrégées d'examen",
+      "rule": "Ex. candidates_total, candidates_girls, candidates_boys, success_rate si aucun individu n'est identifiable."
+    },
+    {
+      "code": "aggregate_teacher_counts",
+      "label": "Effectifs agrégés des enseignants",
+      "rule": "teachers_count et teachers_qualified sont autorisés à un niveau agrégé suffisant."
+    },
+    {
+      "code": "public_budget_data",
+      "label": "Données budgétaires publiques",
+      "rule": "budget_education et budget_share_education sont non-PII lorsqu'ils sont publiés comme statistiques institutionnelles."
+    }
+  ],
+  "education_privacy_rules": [
+    {
+      "rule_id": "EDU-001",
+      "name": "No individual student answers",
+      "condition": "La question demande une information sur un élève/candidat/étudiant identifiable.",
+      "action": "refuse_or_redirect_to_authorized_service",
+      "severity": "HIGH"
+    },
+    {
+      "rule_id": "EDU-002",
+      "name": "Aggregate before generation",
+      "condition": "Les données sources contiennent des lignes individuelles mais la question porte sur un indicateur statistique.",
+      "action": "aggregate_before_llm",
+      "severity": "HIGH"
+    },
+    {
+      "rule_id": "EDU-003",
+      "name": "Small-cell suppression",
+      "condition": "Une ventilation statistique publique produit un groupe de moins de 10 personnes.",
+      "action": "suppress_or_coarsen",
+      "parameters": {
+        "k": 10
+      },
+      "severity": "HIGH",
+      "note": "Seuil technique initial configurable ; à valider avec la politique institutionnelle."
+    },
+    {
+      "rule_id": "EDU-004",
+      "name": "Minor protection",
+      "condition": "La donnée concerne un mineur identifiable ou potentiellement ré-identifiable.",
+      "action": "raise_risk_one_level_and_require_review",
+      "severity": "CRITICAL"
+    },
+    {
+      "rule_id": "EDU-005",
+      "name": "No candidate-result lookup",
+      "condition": "La requête tente d'obtenir le résultat individuel d'un examen à partir d'un nom, numéro de table ou matricule.",
+      "action": "block",
+      "severity": "CRITICAL"
+    },
+    {
+      "rule_id": "EDU-006",
+      "name": "Public official exception",
+      "condition": "Le nom concerne un responsable public cité dans l'exercice de sa fonction et l'information est pertinente pour la question.",
+      "action": "allow_if_public_and_relevant",
+      "severity": "LOW"
+    },
+    {
+      "rule_id": "EDU-007",
+      "name": "Dataset ingestion gate",
+      "condition": "Un CSV/XLSX contient des identifiants directs ou un risque élevé de ré-identification.",
+      "action": "quarantine_and_review_before_indexing",
+      "severity": "CRITICAL"
+    },
+    {
+      "rule_id": "EDU-008",
+      "name": "Vector store privacy",
+      "condition": "Un chunk contient PII HIGH/CRITICAL.",
+      "action": "do_not_embed_until_redacted_or_approved",
+      "severity": "CRITICAL"
+    },
+    {
+      "rule_id": "EDU-009",
+      "name": "Prompt privacy",
+      "condition": "La question utilisateur contient PII.",
+      "action": "redact_before_external_model_and_keep_local_mapping_only_if_required",
+      "severity": "HIGH"
+    },
+    {
+      "rule_id": "EDU-010",
+      "name": "Citation privacy",
+      "condition": "Le passage cité contient plus d'informations personnelles que nécessaire pour justifier la réponse.",
+      "action": "quote_minimal_redacted_span",
+      "severity": "HIGH"
+    },
+    {
+      "rule_id": "EDU-011",
+      "name": "No reconstruction",
+      "condition": "Plusieurs agrégats peuvent être combinés pour retrouver l'information d'une personne ou d'un très petit groupe.",
+      "action": "suppress_or_coarsen",
+      "severity": "HIGH"
+    },
+    {
+      "rule_id": "EDU-012",
+      "name": "Exports",
+      "condition": "Un utilisateur exporte des données contenant PII.",
+      "action": "require_authorization_and_export_redacted_by_default",
+      "severity": "HIGH"
+    }
+  ],
+  "pipeline_enforcement": {
+    "ingestion": [
+      "scan_schema",
+      "scan_values",
+      "detect_direct_identifiers",
+      "detect_quasi_identifiers",
+      "estimate_reidentification_risk",
+      "redact_or_quarantine",
+      "record_audit_event"
+    ],
+    "retrieval": [
+      "filter_non_approved_chunks",
+      "prefer_aggregated_evidence",
+      "apply_role_based_access"
+    ],
+    "generation": [
+      "redact_user_prompt_if_needed",
+      "block_external_llm_for_unredacted_high_or_critical_pii",
+      "verify_no_pii_leak_in_answer",
+      "apply_small_cell_rule",
+      "cite_minimal_evidence"
+    ],
+    "logging": [
+      "never_log_passwords_tokens_or_raw_critical_pii",
+      "store_redacted_prompt",
+      "store_rule_ids_triggered",
+      "store_decision_and_reason"
+    ],
+    "export": [
+      "rescan_output",
+      "apply_masking",
+      "enforce_small_cell_rule",
+      "watermark_sensitive_exports_if_enabled"
+    ]
+  },
+  "recommended_detector_stack": {
+    "layer_1_rules": [
+      "regex",
+      "column_name_dictionary",
+      "value_patterns",
+      "Togo-specific phone patterns"
+    ],
+    "layer_2_ner": [
+      "multilingual NER model",
+      "French-capable NER"
+    ],
+    "layer_3_context": [
+      "LLM/classifier only on redacted or locally processed context"
+    ],
+    "layer_4_risk_engine": [
+      "direct identifier score",
+      "quasi-identifier combination score",
+      "minor flag",
+      "small-group risk"
+    ]
+  },
+  "redaction_tokens": {
+    "person_full_name": "[PERSON_NAME]",
+    "phone_number": "[PHONE]",
+    "email_address": "[EMAIL]",
+    "national_identity_number": "[NATIONAL_ID]",
+    "passport_number": "[PASSPORT]",
+    "student_id": "[STUDENT_ID]",
+    "exam_candidate_number": "[CANDIDATE_ID]",
+    "date_of_birth": "[DOB]",
+    "postal_address": "[ADDRESS]",
+    "precise_geolocation": "[PRECISE_LOCATION]",
+    "password_secret_token": "[SECRET]"
+  }
+}

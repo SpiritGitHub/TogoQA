@@ -136,11 +136,15 @@ class Indicator(Base):
     code: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     label: Mapped[str] = mapped_column(Text, nullable=False)
     definition: Mapped[str | None] = mapped_column(Text)
-    unit: Mapped[str] = mapped_column(String(20), nullable=False)
+    unit: Mapped[str] = mapped_column(String(30), nullable=False)
     aliases = mapped_column(ARRAY(Text), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(40))
+    meta = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     observations: Mapped[list["Observation"]] = relationship(back_populates="indicator")
+
+    __table_args__ = (Index("idx_indicators_category", "category"),)
 
 
 # ──────────────────────────────────────────────

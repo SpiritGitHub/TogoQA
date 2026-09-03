@@ -51,6 +51,7 @@ alembic upgrade head
 
 ```bash
 python data/seeds/sources.py
+python data/seeds/indicators.py
 ```
 
 ---
