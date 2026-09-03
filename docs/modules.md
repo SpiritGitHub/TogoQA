@@ -659,7 +659,14 @@ def _run_async(coro):
 | **pgvector** | — | models.py | Type Vector pour embeddings dans PostgreSQL |
 | **Alembic** | — | migrations/ | Gestion de migrations de schéma |
 | **httpx** | — | crawlers, downloader | Client HTTP asynchrone |
-| **BeautifulSoup4** | — | crawlers | Parsing HTML, extraction texte/liens |
+| **BeautifulSoup4** | — | crawlers, html_parser, table_extractor | Parsing HTML, extraction texte/liens |
+| **trafilatura** | 2.x | html_parser | Extraction de contenu principal (algo Readability) |
+| **PyMuPDF (fitz)** | — | pdf_parser | Extraction rapide de texte PDF |
+| **pdfplumber** | — | pdf_parser | Fallback pour layouts complexes |
+| **Camelot** | — | table_extractor | Extraction de tableaux PDF (lattice/stream) |
+| **pandas** | — | table_extractor | `read_html()` pour tableaux HTML |
+| **dateparser** | — | metadata_extractor | Parsing de dates françaises |
+| **lxml** | — | html_parser, table_extractor | Backend parser HTML/XML |
 | **Celery** | 5.x | celery_app.py, tasks.py | Tâches asynchrones distribuées |
 | **Redis** | — | celery_app.py | Broker Celery |
 | **MinIO** | — | storage.py | Client S3 pour stockage objet |
@@ -678,3 +685,145 @@ def _run_async(coro):
 | `urllib.robotparser` | base.py | Respect du protocole robots.txt |
 | `dataclasses` | tous les modules | Dataclasses pour les structures de données |
 | `os` / `pathlib` | partout | Chemins de fichiers, variables d'environnement |
+| `io` | table_extractor, pdf_parser | BytesIO/StringIO pour les flux mémoire |
+| `tempfile` | table_extractor | Fichiers temporaires pour Camelot |
+
+---
+
+## 10. Parsers (Semaine 3)
+
+### `src/ingestion/parsers/html_parser.py`
+
+**Rôle** : Extraction de contenu structuré depuis des pages HTML.
+
+**Algorithme** :
+1. **Primaire** : `trafilatura.extract()` avec `favor_recall=True` et `include_tables=True` (algorithme de lisibilité type Readability)
+2. **Fallback** : BeautifulSoup4 si trafilatura extrait < 100 caractères
+   - Suppression des tags non-content (script, style, nav, footer, header, aside)
+   - Recherche de container principal (main > article > div.content)
+   - Extraction de sections par niveau de heading (h1-h6)
+   - Extraction de listes (ul/ol → items)
+3. Extraction des tables HTML (tables avec ≥ 2 lignes)
+4. Score de qualité (ratio caractères alphanumériques + espaces / total)
+
+**Structures** :
+- `HTMLSection(heading, level, content, lists)` — section structurée
+- `HTMLParseResult(title, text, sections, metadata, tables_html, quality_score)`
+
+**Bibliothèques** : trafilatura, BeautifulSoup4
+
+### `src/ingestion/parsers/pdf_parser.py`
+
+**Rôle** : Extraction de texte et métadonnées depuis des PDF.
+
+**Algorithme** :
+1. **Primaire** : PyMuPDF (`fitz.open(stream=raw)`) — extraction rapide page par page
+2. **Détection de PDF scannés** : si total_chars < 50 × page_count ET images présentes → `is_scanned=True`
+3. **Fallback** : pdfplumber si PyMuPDF extrait peu de texte
+4. Nettoyage : résolution des coupures de mots (`mot-\nligne` → `motligne`), collapse des espaces multiples
+5. Score de qualité (ratio caractères utiles), capped à 0.3 si scanné
+
+**Structures** :
+- `PDFPage(page_num, text, char_count, has_images)`
+- `PDFParseResult(title, pages, text, page_count, metadata, is_scanned, quality_score)`
+
+**Bibliothèques** : PyMuPDF (fitz), pdfplumber
+
+### `src/ingestion/parsers/table_extractor.py`
+
+**Rôle** : Extraction de données tabulaires depuis HTML et PDF.
+
+**Algorithme** :
+- **HTML** : `pandas.read_html(io.StringIO(html), flavor="bs4")` → filtrage tables avec ≥ 1 ligne et ≥ 2 colonnes
+- **PDF** : `camelot.read_pdf()` en mode lattice (tables avec bordures), fallback en mode stream (séparation par espaces) si lattice ne trouve rien. Utilise fichier temporaire car Camelot nécessite un path.
+- **Normalisation des en-têtes** : lowercase, suppression des apostrophes typographiques, remplacement des non-alphanumériques par `_`
+- **Conversion en records** : `table_to_records()` → list[dict] avec clés normalisées
+
+**Structures** :
+- `ExtractedTable(page_num, headers, rows, title, source, accuracy)`
+
+**Bibliothèques** : pandas, Camelot, BeautifulSoup4
+
+### `src/ingestion/parsers/metadata_extractor.py`
+
+**Rôle** : Extraction des métadonnées obligatoires des documents.
+
+**Algorithme** :
+1. **Date** : essai des clés raw_meta (date, published_at), puis regex dates françaises + `dateparser.parse(languages=["fr","en"])`
+2. **Année scolaire** : regex `(20[12]\d)[-/](20[12]\d)` avec validation y2 == y1 + 1
+3. **Niveau d'éducation** : lookup par mots-clés dans dict EDUCATION_LEVELS (25+ entrées, primaire→primary, collège→secondary1, etc.)
+4. **Type de document** : lookup dans DOCUMENT_TYPES (annuaire, rapport, communiqué, arrêté, loi, décret)
+5. **Statut des données** : lookup dans DATA_STATUSES (observé→observed, provisoire→provisional, estimé→estimated)
+6. **Portée géographique** : regex `par école/préfecture/région` → school/prefectoral/regional, défaut national
+7. **Score de confiance** : somme pondérée (date 0.2, school_year 0.25, level 0.15, doc_type 0.15, status 0.1, title 0.1, author 0.05)
+
+**Structures** :
+- `DocumentMetadata(title, publication_date, reference_period, school_year, data_status, geographic_scope, education_level, document_type, author, source_name, confidence)`
+
+**Bibliothèques** : dateparser, re
+
+## 11. Normalisation
+
+### `src/ingestion/normalizer.py`
+
+**Rôle** : Normalisation des données Togo-spécifiques vers des codes canoniques.
+
+**Dictionnaires** :
+- `LEVEL_MAP` : 30+ termes français → 7 codes (preschool, primary, secondary1, secondary2, technical, superior, non_formal)
+- `SEX_MAP` : garçon/fille/masculin/féminin/ensemble/M/F → male/female/total
+- `REGIONS_TOGO` : 5 régions + Lomé-Commune avec variantes d'accents (maritime, savanes, etc.)
+- `PREFECTURES_TOGO` : ~40 préfectures avec variantes (Agoè-Nyivé, Akébou, Tchaoudjo, etc.)
+- `INDICATOR_SYNONYMS` : 30+ labels français → codes indicateurs (TBS → gross_enrollment_rate, etc.)
+
+**Fonctions** :
+- `normalize_school_year()` — regex YYYY-YYYY, validation consécutivité
+- `normalize_year()` — extraction d'une année civile
+- `normalize_education_level()` — lookup dans LEVEL_MAP
+- `normalize_sex()` — lookup dans SEX_MAP
+- `normalize_region()` / `normalize_prefecture()` — lookup avec accents
+- `normalize_indicator_label()` — lookup dans INDICATOR_SYNONYMS
+- `parse_numeric_value()` — parsing français : espace milliers, virgule décimale, strip `%`
+
+## 12. Loader PostgreSQL
+
+### `src/ingestion/loader.py`
+
+**Rôle** : Chunking du texte et insertion dans PostgreSQL.
+
+**Algorithme de chunking** :
+1. Découpage en phrases par regex `(?<=[.!?])\s+` (frontières de phrases)
+2. Accumulation de mots jusqu'à `max_tokens` (défaut 500)
+3. Chevauchement configurable (défaut 50 mots) : les derniers mots du chunk N deviennent le début du chunk N+1
+4. Conservation du numéro de page et de section par chunk
+
+**Fonctions DB** (SQLAlchemy raw SQL) :
+- `insert_document()` — INSERT avec déduplication par checksum (SELECT avant INSERT), RETURNING id, status='parsed'
+- `insert_chunks()` — insertion bulk des ChunkInfo
+- `insert_observation()` — lookup indicateur par code, puis INSERT dans observations
+- `supersede_document()` — chaînage de versions (supersedes_document_id) + passage de l'ancien à needs_review
+
+**Structures** :
+- `ChunkInfo(text, page, section, token_estimate)`
+
+## 13. Contrôles qualité
+
+### `src/ingestion/quality.py`
+
+**Rôle** : 6 contrôles automatisés de qualité à l'ingestion.
+
+**Contrôles** :
+1. **Lisibilité** (`check_readability`) — ratio caractères utiles (alnum + espace + ponctuation) ≥ 95%, minimum 50 caractères
+2. **Cohérence tableaux** (`check_table_coherence`) — vérification que les en-têtes existent et que le nombre de colonnes est constant
+3. **Période connue** (`check_period_known`) — school_year ou reference_period fournis, sinon regex YYYY-YYYY ou YYYY dans le texte
+4. **Sommes plausibles** (`check_sums_plausible`) — extraction Total/Filles/Garçons par regex, vérification |F+G - T|/T < 5%
+5. **Déduplication** (`check_duplication`) — appartenance du checksum SHA-256 à l'ensemble existant → action "reject" si doublon
+6. **Allowlist sources** (`check_source_allowlist`) — vérification du domaine dans les 29 sources autorisées + sous-domaines
+
+**Décision** : `run_quality_checks()` retourne un `QualityReport` avec statut suggéré :
+- `parsed` si tous les contrôles passent
+- `needs_review` si un contrôle échoue sans action "reject"
+- `rejected` si un contrôle a action="reject" (doublon ou domaine interdit)
+
+**Structures** :
+- `QualityResult(check, passed, score, details, action)`
+- `QualityReport(results, overall_passed, suggested_status)`
