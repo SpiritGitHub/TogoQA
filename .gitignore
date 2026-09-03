@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Database
+*.db
+*.sqlite3
+
+# Object storage data
+minio_data/
+
+# Redis data
+redis_data/
+
+# PostgreSQL data
+pgdata/
+
+# Node
+node_modules/
+apps/web/dist/
+
+# MLflow
+mlruns/
+
+# DVC
+.dvc/cache/
+.dvc/tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Model weights (download at runtime)
+models/
+
+# Temporary files
+*.tmp
+*.bak
