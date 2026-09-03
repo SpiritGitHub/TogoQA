@@ -153,7 +153,7 @@ Cela lance :
 - **Redis** sur le port `6379`
 - **MinIO** sur les ports `9000` (API) et `9001` (console)
 
-### 4. Appliquer les migrations
+### 4. Installer les dépendances et appliquer les migrations
 
 ```bash
 pip install -e ".[dev]"
@@ -163,7 +163,18 @@ alembic upgrade head
 ### 5. Charger les données initiales
 
 ```bash
-python data/seeds/sources.py
+python data/seeds/sources.py      # 29 sources avec tiers d'autorité
+python data/seeds/indicators.py   # 122 indicateurs éducatifs
+```
+
+### 6. Lancer les crawlers (optionnel)
+
+```bash
+# Worker Celery
+celery -A src.ingestion.celery_app worker --loglevel=info -Q crawl
+
+# Planificateur Beat (dans un autre terminal)
+celery -A src.ingestion.celery_app beat --loglevel=info
 ```
 
 ---
@@ -186,36 +197,53 @@ TogoQA/
 │           └── api/          # Client API
 │
 ├── src/                      # Moteur TogoQA (logique métier)
-│   ├── models.py             # Modèles SQLAlchemy (10 tables)
-│   ├── db.py                 # Connexion base de données
-│   ├── ingestion/            # Crawlers, parsers, extraction de tableaux
-│   │   ├── crawlers/         # Crawlers MEN, INSEED, etc.
-│   │   └── parsers/          # Parsers HTML, PDF, tableaux
-│   ├── retrieval/            # Recherche hybride
-│   │   ├── vector.py         # Recherche vectorielle (pgvector)
-│   │   ├── lexical.py        # Recherche FTS (PostgreSQL)
-│   │   ├── fusion.py         # Fusion RRF
-│   │   └── reranker.py       # Reranking (bge-reranker)
-│   ├── reasoning/            # Raisonnement
+│   ├── models.py             # Modèles SQLAlchemy (10 tables, pgvector)
+│   ├── db.py                 # Connexion PostgreSQL (psycopg3 + SQLAlchemy 2.0)
+│   ├── privacy/              # Protection des données personnelles
+│   │   ├── detector.py       # Détection PII par regex (28 types, français/Togo)
+│   │   └── policy.py         # Règles EDU-001 à EDU-012, small-cell suppression
+│   ├── ingestion/            # Pipeline d'ingestion de données
+│   │   ├── crawlers/         # Crawlers async (httpx + BeautifulSoup)
+│   │   │   ├── base.py       # Classe de base : BFS, robots.txt, SHA-256
+│   │   │   ├── men.py        # MEN (education.gouv.tg) — filtrage, dates FR
+│   │   │   ├── inseed.py     # INSEED (inseed.tg) — PDF, annuaires
+│   │   │   └── exams.py      # Examens CEPD/BEPC/BAC — extraction stats
+│   │   ├── downloader.py     # Téléchargeur versionnant (SHA-256 + manifest)
+│   │   ├── storage.py        # Stockage MinIO (S3) avec dédup par checksum
+│   │   ├── celery_app.py     # Config Celery (Redis broker, beat schedule)
+│   │   ├── tasks.py          # 3 tâches Celery : MEN/INSEED/examens
+│   │   └── parsers/          # Parsers HTML, PDF, tableaux (Semaine 3)
+│   ├── retrieval/            # Recherche hybride (Semaine 5-6)
+│   │   ├── vector.py         # Recherche vectorielle (pgvector + bge-m3)
+│   │   ├── lexical.py        # Recherche FTS (PostgreSQL tsvector)
+│   │   ├── fusion.py         # Fusion RRF (Reciprocal Rank Fusion)
+│   │   └── reranker.py       # Reranking (bge-reranker-v2-m3)
+│   ├── reasoning/            # Raisonnement (Semaine 8)
 │   │   ├── temporal.py       # Logique temporelle
-│   │   ├── numeric.py        # Calculs vérifiés
+│   │   ├── numeric.py        # Calculs vérifiés (Python/DuckDB)
 │   │   └── contradictions.py # Détection de contradictions
-│   ├── answerability/        # Prédiction de répondabilité
+│   ├── answerability/        # Prédiction de répondabilité (Semaine 7)
 │   │   ├── features.py       # 10 features de confiance
 │   │   └── classifier.py     # Classificateur FULL/PARTIAL/NONE
-│   ├── verification/         # Vérification des claims
+│   ├── verification/         # Vérification des claims (Semaine 8)
 │   │   ├── decompose.py      # Décomposition en claims atomiques
-│   │   └── nli.py            # Natural Language Inference
-│   ├── confidence/           # Calibration et politique
-│   │   ├── calibrator.py     # Calibrateur de confiance
+│   │   └── nli.py            # Natural Language Inference (mDeBERTa-v3)
+│   ├── confidence/           # Calibration et politique (Semaine 9)
+│   │   ├── calibrator.py     # Calibrateur de confiance (isotonique/Platt)
 │   │   └── policy.py         # Politique ANSWER/PARTIAL/ABSTAIN
-│   └── generation/           # Adaptateur LLM
-│       └── llm.py            # Interface fournisseur-agnostique
+│   └── generation/           # Adaptateur LLM (Semaine 5)
+│       └── llm.py            # Interface fournisseur-agnostique (Qwen3-8B)
 │
 ├── data/
-│   ├── manifests/            # Registre des sources (YAML/JSON)
+│   ├── manifests/            # Fichiers de référence JSON
+│   │   ├── indicators.json   # 122 indicateurs éducatifs (16 catégories)
+│   │   ├── pii_rules.json    # 28 types PII + 12 règles EDU + tokens
+│   │   └── pii_tests.json    # 52 cas de test PII (11 couches)
 │   ├── schemas/              # Schéma SQL initial
 │   ├── seeds/                # Scripts de données initiales
+│   │   ├── sources.py        # Seed des 29 sources (upsert SQL)
+│   │   └── indicators.py     # Seed des 122 indicateurs (upsert + JSONB)
+│   ├── downloads/            # Documents téléchargés + manifest.json
 │   └── benchmark/            # TogoEduQA-Bench (questions gold)
 │
 ├── migrations/               # Migrations Alembic
@@ -276,18 +304,37 @@ Voir [docs/schema.md](docs/schema.md) pour le détail complet.
 
 ---
 
+## Documentation
+
+| Document | Contenu |
+|----------|---------|
+| [docs/modules.md](docs/modules.md) | Documentation technique de chaque fichier : rôle, algorithmes, bibliothèques |
+| [docs/architecture.md](docs/architecture.md) | Architecture globale, pipeline d'une question, score de confiance |
+| [docs/schema.md](docs/schema.md) | Schéma des 10 tables PostgreSQL avec colonnes et index |
+| [docs/sources.md](docs/sources.md) | Inventaire des 29 sources, tiers d'autorité, règles de corroboration |
+| [docs/development.md](docs/development.md) | Guide d'installation, workflow Git, commandes utiles |
+
+---
+
+## Tests
+
+98 tests unitaires couvrent les modules implémentés :
+
+```bash
+pytest                         # tout lancer
+pytest tests/unit/test_pii.py  # 56 tests PII (détection, politique, faux positifs)
+pytest tests/unit/test_crawlers.py    # 19 tests crawlers (base, MEN, INSEED)
+pytest tests/unit/test_ingestion.py   # 23 tests (downloader, examens, MinIO, Celery)
+```
+
+---
+
 ## Développement
 
 ### Installer les dépendances
 
 ```bash
 pip install -e ".[dev]"
-```
-
-### Lancer les tests
-
-```bash
-pytest
 ```
 
 ### Linter
@@ -321,11 +368,11 @@ Flux : `azharwork` → PR → `dev` → PR → `main`
 
 Le projet suit un plan de développement en **12 semaines**. Voir les [milestones GitHub](https://github.com/SpiritGitHub/TogoQA/milestones) et les [62 issues](https://github.com/SpiritGitHub/TogoQA/issues) pour le suivi détaillé.
 
-| Semaine | Livrable |
-|---------|----------|
-| S1 | Fondations : structure, Docker, schéma DB, sources |
-| S2 | Collecte : crawlers MEN/INSEED |
-| S3 | Parsing : HTML, PDF, tableaux, normalisation |
+| Semaine | Livrable | Statut |
+|---------|----------|--------|
+| S1 | Fondations : structure, Docker, schéma DB, sources, indicateurs, PII | Done |
+| S2 | Collecte : crawlers MEN/INSEED/examens, downloader, MinIO, Celery | Done |
+| S3 | Parsing : HTML, PDF, tableaux, normalisation | |
 | S4 | Données structurées + 50 questions gold |
 | S5 | RAG baseline (B1) |
 | S6 | Retrieval hybride + reranker (B2) |
